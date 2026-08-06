@@ -13,8 +13,6 @@
 		A10B01000000000000000004 /* PrototypeWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10B00100000000000000004 /* PrototypeWindowView.swift */; };
 		A10B01000000000000000005 /* Icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = A10B00100000000000000005 /* Icon.icns */; };
 		A10B01000000000000000006 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A10B00100000000000000006 /* Assets.xcassets */; };
-		A10B01000000000000000007 /* PreviewAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A10B00100000000000000007 /* PreviewAssets.xcassets */; };
-		A10B01000000000000000008 /* PreviewDialogs.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10B00100000000000000009 /* PreviewDialogs.swift */; };
 		A10B01000000000000000009 /* QualityEstimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10B0010000000000000000A /* QualityEstimator.swift */; };
 		A10B0100000000000000000A /* IconResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10B0010000000000000000B /* IconResolver.swift */; };
 		A10B0100000000000000000B /* TimeoutController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10B0010000000000000000C /* TimeoutController.swift */; };
@@ -43,9 +41,7 @@
 		A10B00100000000000000004 /* PrototypeWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrototypeWindowView.swift; sourceTree = "<group>"; };
 		A10B00100000000000000005 /* Icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Icon.icns; sourceTree = "<group>"; };
 		A10B00100000000000000006 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		A10B00100000000000000007 /* PreviewAssets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = PreviewAssets.xcassets; sourceTree = "<group>"; };
 		A10B00100000000000000008 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		A10B00100000000000000009 /* PreviewDialogs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewDialogs.swift; sourceTree = "<group>"; };
 		A10B0010000000000000000A /* QualityEstimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QualityEstimator.swift; sourceTree = "<group>"; };
 		A10B0010000000000000000B /* IconResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconResolver.swift; sourceTree = "<group>"; };
 		A10B0010000000000000000C /* TimeoutController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeoutController.swift; sourceTree = "<group>"; };
@@ -101,13 +97,11 @@
 				A10B000F0000000000000017 /* Models */,
 				A10B000F0000000000000018 /* ViewModels */,
 				A10B000F0000000000000019 /* Views */,
-				A10B000F000000000000001A /* PreviewSupport */,
 				A10B000F000000000000001B /* Services */,
 				A10B000F000000000000001C /* Bridge */,
 				A10B02200000000000000001 /* LegacySupport */,
 				A10B00100000000000000005 /* Icon.icns */,
 				A10B00100000000000000006 /* Assets.xcassets */,
-				A10B00100000000000000007 /* PreviewAssets.xcassets */,
 				A10B00100000000000000008 /* Info.plist */,
 				A10B00100000000000000018 /* Localizable.strings */,
 				A10B02100000000000000006 /* PinentryMacSwift-Bridging-Header.h */,
@@ -145,14 +139,6 @@
 				A10B00100000000000000004 /* PrototypeWindowView.swift */,
 			);
 			path = Views;
-			sourceTree = "<group>";
-		};
-		A10B000F000000000000001A /* PreviewSupport */ = {
-			isa = PBXGroup;
-			children = (
-				A10B00100000000000000009 /* PreviewDialogs.swift */,
-			);
-			path = PreviewSupport;
 			sourceTree = "<group>";
 		};
 		A10B000F000000000000001B /* Services */ = {
@@ -256,7 +242,6 @@
 			files = (
 				A10B01000000000000000005 /* Icon.icns in Resources */,
 				A10B01000000000000000006 /* Assets.xcassets in Resources */,
-				A10B01000000000000000007 /* PreviewAssets.xcassets in Resources */,
 				A10B01000000000000000015 /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -303,7 +288,6 @@
 				A10B01000000000000000002 /* DialogModel.swift in Sources */,
 				A10B01000000000000000003 /* DialogViewModel.swift in Sources */,
 				A10B01000000000000000004 /* PrototypeWindowView.swift in Sources */,
-				A10B01000000000000000008 /* PreviewDialogs.swift in Sources */,
 				A10B01000000000000000009 /* QualityEstimator.swift in Sources */,
 				A10B0100000000000000000A /* IconResolver.swift in Sources */,
 				A10B0100000000000000000B /* TimeoutController.swift in Sources */,

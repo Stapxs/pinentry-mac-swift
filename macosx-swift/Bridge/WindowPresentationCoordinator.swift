@@ -10,7 +10,6 @@ final class WindowPresentationCoordinator: ObservableObject, PinentryPresenter {
     private var continuation: CheckedContinuation<DialogResponse, Never>?
 
     init(
-        previewDialog: DialogModel? = nil,
         iconResolver: any IconResolving = IconResolver(),
         qualityEstimator: any PassphraseQualityEstimating = HeuristicQualityEstimator(),
         timeoutController: any TimeoutControlling = TimeoutController()
@@ -18,10 +17,6 @@ final class WindowPresentationCoordinator: ObservableObject, PinentryPresenter {
         self.iconResolver = iconResolver
         self.qualityEstimator = qualityEstimator
         self.timeoutController = timeoutController
-
-        if let previewDialog {
-            activeViewModel = makeViewModel(for: previewDialog)
-        }
     }
 
     func present(dialog: DialogModel) async -> DialogResponse {

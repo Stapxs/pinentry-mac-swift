@@ -19,8 +19,6 @@ EXTRA_DIST = \
 	Models \
 	PinentryMacSwift-Bridging-Header.h \
 	PinentryMacSwiftRuntime.swift \
-	PreviewAssets.xcassets \
-	PreviewSupport \
 	Scripts \
 	Services \
 	ViewModels \

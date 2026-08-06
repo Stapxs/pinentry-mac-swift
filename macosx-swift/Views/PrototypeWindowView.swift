@@ -9,12 +9,6 @@ struct PrototypeWindowView: View {
         _coordinator = StateObject(wrappedValue: coordinator)
     }
 
-    init() {
-        _coordinator = StateObject(wrappedValue: WindowPresentationCoordinator(
-            previewDialog: PreviewDialogs.minimalPassphrase
-        ))
-    }
-
     var body: some View {
         Group {
             if let viewModel = coordinator.activeViewModel {
@@ -290,28 +284,5 @@ private struct SecondaryActionButtonModifier: ViewModifier {
             content
                 .buttonStyle(.bordered)
         }
-    }
-}
-
-struct DialogCardView_Previews: PreviewProvider {
-    static var previews: some View {
-        Group {
-            preview(title: L10n.tr("preview.name.minimal", fallback: "Minimal"), model: PreviewDialogs.minimalPassphrase)
-            preview(title: L10n.tr("preview.name.long", fallback: "Long Description"), model: PreviewDialogs.longMessage)
-            preview(title: L10n.tr("preview.name.error", fallback: "Error State"), model: PreviewDialogs.errorState)
-            preview(title: L10n.tr("preview.name.repeat", fallback: "Repeat Entry"), model: PreviewDialogs.repeatEntry)
-            preview(title: L10n.tr("preview.name.quality", fallback: "Quality Bar"), model: PreviewDialogs.qualityEntry)
-            preview(title: L10n.tr("preview.name.options", fallback: "Options"), model: PreviewDialogs.optionsEntry)
-            preview(title: L10n.tr("preview.name.confirm", fallback: "Confirm"), model: PreviewDialogs.confirmOnly)
-        }
-        .preferredColorScheme(.light)
-    }
-
-    private static func preview(title: String, model: DialogModel) -> some View {
-        PrototypeWindowView(
-            coordinator: WindowPresentationCoordinator(previewDialog: model)
-        )
-        .frame(width: 360, height: 430)
-        .previewDisplayName(title)
     }
 }
