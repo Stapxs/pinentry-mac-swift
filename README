@@ -8,6 +8,16 @@ There are programs for different toolkits available.  For all GUIs it
 is automatically detected which modules can be built, but it can also
 be requested explicitly.
 
+SUPPLEMENT TO THE CLONE PROJECT
+---------
+Addition of new content to the clone project / 克隆项目新增内容补充
+
+This clone project rewrites the pinentry mac GUI based on SwiftUI, which supports macOS 13 and above. The code can view the new `macosx-swift` directory.
+
+本克隆项目对 pinentry mac GUI 进行了基于 SwiftUI 的重写，支持 macOS 13 及以上系统，代码可以查看新增的 `macosx-swift` 目录。
+
+![hello-world.png](README-hello-world.png)
+
 GUI		OPTION			 DEPENDENCIES
 --------------------------------------------------------------------------
 GTK+ V2.0	--enable-pinentry-gtk2	 Gimp Toolkit Library, Version 2.0
