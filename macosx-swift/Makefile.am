@@ -39,7 +39,7 @@ pinentry-mac-swift.app: ../pinentry/libpinentry.a ../secmem/libsecmem.a
 		ONLY_ACTIVE_ARCH=YES \
 		HEADER_SEARCH_PATHS="$(abs_top_srcdir) $(abs_top_srcdir)/pinentry $(abs_top_srcdir)/secmem $(abs_top_srcdir)/macosx /usr/local/MacGPG2/include /opt/homebrew/include" \
 		OTHER_CFLAGS="$(COMMON_CFLAGS)" \
-		OTHER_LDFLAGS="$(abs_top_builddir)/pinentry/libpinentry.a $(abs_top_builddir)/secmem/libsecmem.a $(COMMON_LIBS) -L/usr/local/MacGPG2/lib -L/opt/homebrew/lib -lassuan -lgpg-error -framework Security"
+			OTHER_LDFLAGS="$(abs_top_builddir)/pinentry/libpinentry.a $(abs_top_builddir)/secmem/libsecmem.a $(COMMON_LIBS) -L/usr/local/MacGPG2/lib -L/opt/homebrew/lib -lassuan -lgpg-error -framework Security -framework LocalAuthentication -framework LocalAuthenticationEmbeddedUI"
 	rm -rf $@
 	cp -R "$(XCODE_PRODUCTS)/pinentry-mac-swift.app" $@
 

@@ -63,6 +63,10 @@ struct PinentryRequestMapper {
             showTypingToggleAvailable: payload.requiresPassphrase,
             saveInKeychainDefault: payload.prefersSaveInKeychain,
             showTypingDefault: payload.prefersShowTyping,
+            attemptsAutomaticTouchID: payload.attemptsAutomaticTouchID,
+            automaticTouchIDPrompt: payload.automaticTouchIDPrompt,
+            automaticTouchIDCacheID: payload.automaticTouchIDCacheID,
+            automaticTouchIDKeychainLabel: payload.automaticTouchIDKeychainLabel,
             timeoutSeconds: payload.timeoutSeconds,
             iconSource: iconSource
         )

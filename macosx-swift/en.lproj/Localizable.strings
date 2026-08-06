@@ -2,6 +2,7 @@
 "dialog.action.unlock" = "OK";
 "dialog.action.allow" = "Allow";
 "dialog.action.cancel" = "Cancel";
+"dialog.action.use_password" = "Use Password...";
 "dialog.prompt.passphrase" = "Passphrase";
 "dialog.prompt.confirm_prefix" = "Confirm";
 "dialog.prompt.confirm_format" = "Confirm %@";

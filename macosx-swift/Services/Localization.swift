@@ -93,6 +93,10 @@ enum L10n {
         tr("dialog.action.cancel", fallback: "Cancel")
     }
 
+    static var usePasswordAction: String {
+        tr("dialog.action.use_password", fallback: "Use Password...")
+    }
+
     static var defaultPassphrasePrompt: String {
         tr("dialog.prompt.passphrase", fallback: "Passphrase")
     }

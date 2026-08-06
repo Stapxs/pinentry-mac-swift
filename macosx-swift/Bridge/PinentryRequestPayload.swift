@@ -15,6 +15,10 @@ struct PinentryRequestPayload: Equatable {
     let keyInfo: String?
     let prefersSaveInKeychain: Bool
     let prefersShowTyping: Bool
+    let attemptsAutomaticTouchID: Bool
+    let automaticTouchIDPrompt: String?
+    let automaticTouchIDCacheID: String?
+    let automaticTouchIDKeychainLabel: String?
     let userData: String?
     let identity: PinentryIdentityContext
 }
@@ -26,4 +30,6 @@ struct PinentryBridgeResult: Equatable {
     let passphrase: String
     let repeatOkay: Bool
     let saveInKeychain: Bool
+    let pinFromCache: Bool
+    let keychainUnusable: Bool
 }

@@ -54,6 +54,10 @@ final class CPinentryRequest: NSObject {
     @objc var keyInfo: String?
     @objc var prefersSaveInKeychain = false
     @objc var prefersShowTyping = false
+    @objc var attemptsAutomaticTouchID = false
+    @objc var automaticTouchIDPrompt: String?
+    @objc var automaticTouchIDCacheID: String?
+    @objc var automaticTouchIDKeychainLabel: String?
     @objc var userData: String?
     @objc var userID = ""
     @objc var name = ""
@@ -78,6 +82,10 @@ final class CPinentryRequest: NSObject {
             keyInfo: keyInfo,
             prefersSaveInKeychain: prefersSaveInKeychain,
             prefersShowTyping: prefersShowTyping,
+            attemptsAutomaticTouchID: attemptsAutomaticTouchID,
+            automaticTouchIDPrompt: automaticTouchIDPrompt,
+            automaticTouchIDCacheID: automaticTouchIDCacheID,
+            automaticTouchIDKeychainLabel: automaticTouchIDKeychainLabel,
             userData: userData,
             identity: PinentryIdentityContext(
                 userID: userID,
@@ -98,6 +106,8 @@ final class CPinentryResponse: NSObject {
     @objc var passphrase = ""
     @objc var repeatOkay = false
     @objc var saveInKeychain = false
+    @objc var pinFromCache = false
+    @objc var keychainUnusable = false
 
     convenience init(bridgeResult: PinentryBridgeResult) {
         self.init()
@@ -107,6 +117,8 @@ final class CPinentryResponse: NSObject {
         passphrase = bridgeResult.passphrase
         repeatOkay = bridgeResult.repeatOkay
         saveInKeychain = bridgeResult.saveInKeychain
+        pinFromCache = bridgeResult.pinFromCache
+        keychainUnusable = bridgeResult.keychainUnusable
     }
 }
 
@@ -175,6 +187,9 @@ final class PinentryMacSwiftRuntime: NSObject {
         NSApp.activate(ignoringOtherApps: true)
         window.makeKeyAndOrderFront(nil)
         window.orderFrontRegardless()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) {
+            coordinator.beginAutomaticTouchIDIfNeeded()
+        }
 
         let response = await coordinator.waitForResponse()
         window.close()

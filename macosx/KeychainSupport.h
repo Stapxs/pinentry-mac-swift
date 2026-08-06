@@ -21,5 +21,8 @@
 
 #import <Cocoa/Cocoa.h>
 
+BOOL hasPassphraseInKeychain(NSString *fingerprint);
+BOOL hasPassphraseInKeychainWithLabel(NSString *label);
 BOOL storePassphraseInKeychain(NSString *fingerprint, NSString *passphrase, NSString *label);
 NSString *getPassphraseFromKeychain(NSString *fingerprint, BOOL *keychainUnusable);
+NSString *getPassphraseFromKeychainWithLabel(NSString *label, BOOL *keychainUnusable);

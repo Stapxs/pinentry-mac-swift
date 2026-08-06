@@ -8,7 +8,9 @@ struct PinentryResultWriter {
             declined: response.declined,
             passphrase: response.passphrase,
             repeatOkay: !repeatExpected || response.confirmed,
-            saveInKeychain: response.saveInKeychain
+            saveInKeychain: response.saveInKeychain,
+            pinFromCache: response.pinFromCache,
+            keychainUnusable: response.keychainUnusable
         )
     }
 }

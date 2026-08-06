@@ -1,5 +1,6 @@
 import AppKit
 import Foundation
+import LocalAuthentication
 import SwiftUI
 
 @MainActor
@@ -10,6 +11,8 @@ final class DialogViewModel: ObservableObject {
     @Published var showTypedPassphrase: Bool
     @Published private(set) var response: DialogResponse?
     @Published private(set) var remainingSeconds: Int?
+    @Published private(set) var showsInlineTouchID = false
+    @Published private(set) var inlineTouchIDContext: LAContext?
 
     let dialog: DialogModel
 
@@ -18,6 +21,10 @@ final class DialogViewModel: ObservableObject {
     private let timeoutController: any TimeoutControlling
     private let onResolve: ((DialogResponse) -> Void)?
     private var timeoutTask: Task<Void, Never>?
+    private var automaticTouchIDTask: Task<Void, Never>?
+    private var didAttemptAutomaticTouchID = false
+    private var keychainMarkedUnusable = false
+    private var touchIDSession = 0
 
     init(
         dialog: DialogModel,
@@ -55,6 +62,7 @@ final class DialogViewModel: ObservableObject {
 
     deinit {
         timeoutTask?.cancel()
+        automaticTouchIDTask?.cancel()
     }
 
     var state: DialogViewState {
@@ -132,6 +140,10 @@ final class DialogViewModel: ObservableObject {
         return L10n.timeoutHint(secondsRemaining: remainingSeconds)
     }
 
+    var usePasswordActionTitle: String {
+        L10n.usePasswordAction
+    }
+
     func resolveIcon() -> Image {
         switch dialog.iconSource {
         case .systemSymbol(let name):
@@ -156,7 +168,9 @@ final class DialogViewModel: ObservableObject {
                 canceled: false,
                 declined: false,
                 passphrase: passphrase,
-                saveInKeychain: saveInKeychain
+                saveInKeychain: saveInKeychain,
+                pinFromCache: false,
+                keychainUnusable: keychainMarkedUnusable
             )
         )
     }
@@ -168,7 +182,9 @@ final class DialogViewModel: ObservableObject {
                 canceled: true,
                 declined: false,
                 passphrase: "",
-                saveInKeychain: false
+                saveInKeychain: false,
+                pinFromCache: false,
+                keychainUnusable: keychainMarkedUnusable
             )
         )
     }
@@ -180,14 +196,94 @@ final class DialogViewModel: ObservableObject {
                 canceled: false,
                 declined: true,
                 passphrase: "",
-                saveInKeychain: false
+                saveInKeychain: false,
+                pinFromCache: false,
+                keychainUnusable: keychainMarkedUnusable
             )
         )
+    }
+
+    func beginAutomaticTouchIDIfNeeded() {
+        guard response == nil, !didAttemptAutomaticTouchID else {
+            return
+        }
+
+        didAttemptAutomaticTouchID = true
+
+        guard
+            dialog.mode == .passphrase,
+            dialog.attemptsAutomaticTouchID,
+            let localizedReason = dialog.automaticTouchIDPrompt?.trimmingCharacters(in: .whitespacesAndNewlines),
+            !localizedReason.isEmpty
+        else {
+            return
+        }
+
+        let cacheID = dialog.automaticTouchIDCacheID?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let keychainLabel = dialog.automaticTouchIDKeychainLabel?.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard
+            let keychainQuery = AutomaticTouchIDQuery(cacheID: cacheID, keychainLabel: keychainLabel)
+        else {
+            return
+        }
+
+        let context = LAContext()
+        context.localizedFallbackTitle = ""
+        var evaluationError: NSError?
+        guard context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &evaluationError) else {
+            return
+        }
+
+        touchIDSession += 1
+        let session = touchIDSession
+        inlineTouchIDContext = context
+        showsInlineTouchID = true
+
+        automaticTouchIDTask = Task { [weak self] in
+            let result = await Self.performAutomaticTouchID(
+                query: keychainQuery,
+                localizedReason: localizedReason,
+                context: context
+            )
+
+            await MainActor.run {
+                guard let self, self.response == nil, session == self.touchIDSession else {
+                    return
+                }
+
+                switch result {
+                case .resolved(let passphrase):
+                    self.finish(
+                        DialogResponse(
+                            confirmed: true,
+                            canceled: false,
+                            declined: false,
+                            passphrase: passphrase,
+                            saveInKeychain: false,
+                            pinFromCache: true,
+                            keychainUnusable: false
+                        )
+                    )
+                case .unusableKeychain:
+                    self.keychainMarkedUnusable = true
+                    self.showPasswordEntryAfterTouchID(invalidateContext: false)
+                case .continueManually:
+                    self.showPasswordEntryAfterTouchID(invalidateContext: false)
+                }
+            }
+        }
+    }
+
+    func usePasswordInstead() {
+        showPasswordEntryAfterTouchID(invalidateContext: true)
     }
 
     private func finish(_ response: DialogResponse) {
         self.response = response
         timeoutTask?.cancel()
+        automaticTouchIDTask?.cancel()
+        inlineTouchIDContext?.invalidate()
+        inlineTouchIDContext = nil
         onResolve?(response)
     }
 
@@ -207,5 +303,75 @@ final class DialogViewModel: ObservableObject {
 
             self.cancel()
         }
+    }
+
+    private enum AutomaticTouchIDResult {
+        case resolved(String)
+        case unusableKeychain
+        case continueManually
+    }
+
+    private struct AutomaticTouchIDQuery {
+        let cacheID: String?
+        let keychainLabel: String?
+
+        init?(cacheID: String?, keychainLabel: String?) {
+            let normalizedCacheID = cacheID?.isEmpty == false ? cacheID : nil
+            let normalizedKeychainLabel = keychainLabel?.isEmpty == false ? keychainLabel : nil
+
+            guard normalizedCacheID != nil || normalizedKeychainLabel != nil else {
+                return nil
+            }
+
+            self.cacheID = normalizedCacheID
+            self.keychainLabel = normalizedKeychainLabel
+        }
+    }
+
+    private static func performAutomaticTouchID(
+        query: AutomaticTouchIDQuery,
+        localizedReason: String,
+        context: LAContext
+    ) async -> AutomaticTouchIDResult {
+        let didAuthenticate = await withCheckedContinuation { continuation in
+            context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: localizedReason) { success, _ in
+                continuation.resume(returning: success)
+            }
+        }
+
+        guard didAuthenticate else {
+            return .continueManually
+        }
+
+        var keychainUnusable = ObjCBool(false)
+        let passphrase: String?
+        if let cacheID = query.cacheID {
+            passphrase = getPassphraseFromKeychain(cacheID, &keychainUnusable)
+        } else if let keychainLabel = query.keychainLabel {
+            passphrase = getPassphraseFromKeychainWithLabel(keychainLabel, &keychainUnusable)
+        } else {
+            passphrase = nil
+        }
+
+        if keychainUnusable.boolValue {
+            return .unusableKeychain
+        }
+
+        guard let passphrase, !passphrase.isEmpty else {
+            return .continueManually
+        }
+
+        return .resolved(passphrase)
+    }
+
+    private func showPasswordEntryAfterTouchID(invalidateContext: Bool) {
+        touchIDSession += 1
+        automaticTouchIDTask?.cancel()
+        automaticTouchIDTask = nil
+        if invalidateContext {
+            inlineTouchIDContext?.invalidate()
+        }
+        inlineTouchIDContext = nil
+        showsInlineTouchID = false
     }
 }

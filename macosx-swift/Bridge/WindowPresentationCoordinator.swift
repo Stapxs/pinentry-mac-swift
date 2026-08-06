@@ -35,6 +35,10 @@ final class WindowPresentationCoordinator: ObservableObject, PinentryPresenter {
         }
     }
 
+    func beginAutomaticTouchIDIfNeeded() {
+        activeViewModel?.beginAutomaticTouchIDIfNeeded()
+    }
+
     private func makeViewModel(for dialog: DialogModel) -> DialogViewModel {
         DialogViewModel(
             dialog: dialog,

@@ -92,6 +92,15 @@ static NSString *KeychainLabelForRequest(CPinentryRequest *request) {
     return [NSString stringWithFormat:@"%@ <%@> (%@)", request.name, request.email, request.keyID];
 }
 
+static NSString *AutomaticTouchIDPromptForRequest(CPinentryRequest *request) {
+    NSString *label = KeychainLabelForRequest(request);
+    if (label.length > 0) {
+        return [NSString stringWithFormat:@"Unlock %@.", label];
+    }
+
+    return @"Unlock your GPG passphrase.";
+}
+
 static CPinentryRequest *MakeRequest(pinentry_t pe) {
     CPinentryRequest *request = [[CPinentryRequest alloc] init];
     NSString *description = StringFromPinentryCString(pe->description);
@@ -140,28 +149,38 @@ static int pinentry_mac_swift_cmd_handler(pinentry_t pe) {
 
         CPinentryRequest *request = MakeRequest(pe);
         NSString *cacheId = CacheIdFromKeyInfo(request.keyInfo);
+        NSString *keychainLabel = KeychainLabelForRequest(request);
         BOOL lastTryWasKeychain = lastCacheIdUsed && [cacheId isEqualToString:lastCacheIdUsed];
         lastCacheIdUsed = nil;
+
+        if (
+            doNotUseKeychain
+        ) {
+            cacheId = nil;
+        }
 
         if (
             request.requiresPassphrase &&
             cacheId &&
             !pe->error &&
-            !lastTryWasKeychain
+            !request.repeatPassphrase &&
+            !lastTryWasKeychain &&
+            hasPassphraseInKeychain(cacheId)
         ) {
-            NSString *passphraseFromKeychain = getPassphraseFromKeychain(cacheId, &doNotUseKeychain);
-            if (passphraseFromKeychain.length > 0) {
-                int length = WritePassphraseToPinentry(pe, passphraseFromKeychain);
-                if (length >= 0) {
-                    pe->pin_from_cache = 1;
-                    lastCacheIdUsed = [cacheId copy];
-                }
-                return length;
-            }
-        }
-
-        if (doNotUseKeychain) {
-            cacheId = nil;
+            request.attemptsAutomaticTouchID = YES;
+            request.automaticTouchIDCacheID = cacheId;
+            request.automaticTouchIDPrompt = AutomaticTouchIDPromptForRequest(request);
+            request.automaticTouchIDKeychainLabel = keychainLabel;
+        } else if (
+            request.requiresPassphrase &&
+            keychainLabel.length > 0 &&
+            !pe->error &&
+            !request.repeatPassphrase &&
+            hasPassphraseInKeychainWithLabel(keychainLabel)
+        ) {
+            request.attemptsAutomaticTouchID = YES;
+            request.automaticTouchIDPrompt = AutomaticTouchIDPromptForRequest(request);
+            request.automaticTouchIDKeychainLabel = keychainLabel;
         }
 
         CPinentryResponse *response = [PinentryMacSwiftRuntime runRequest:request];
@@ -180,8 +199,20 @@ static int pinentry_mac_swift_cmd_handler(pinentry_t pe) {
                 pe->repeat_okay = 1;
             }
 
+            if (response.keychainUnusable) {
+                doNotUseKeychain = YES;
+                cacheId = nil;
+            }
+
+            if (response.pinFromCache) {
+                pe->pin_from_cache = 1;
+                if (cacheId.length > 0) {
+                    lastCacheIdUsed = [cacheId copy];
+                }
+            }
+
             if (cacheId && response.saveInKeychain && response.passphrase.length > 0) {
-                storePassphraseInKeychain(cacheId, response.passphrase, KeychainLabelForRequest(request));
+                storePassphraseInKeychain(cacheId, response.passphrase, keychainLabel);
             }
 
             return length;

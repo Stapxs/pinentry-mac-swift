@@ -1,4 +1,6 @@
 import AppKit
+import LocalAuthentication
+import LocalAuthenticationEmbeddedUI
 import SwiftUI
 
 @MainActor
@@ -44,7 +46,7 @@ struct DialogCardView: View {
                 }
 
                 if viewModel.dialog.mode == .passphrase {
-                    passphraseSection
+                    passphraseContent
                         .transition(.opacity.combined(with: .move(edge: .top)))
                 }
             }
@@ -60,15 +62,18 @@ struct DialogCardView: View {
         .onChange(of: viewModel.showTypedPassphrase) { _ in
             focusPrimaryPassphraseField()
         }
+        .onChange(of: viewModel.showsInlineTouchID) { isShowingInlineTouchID in
+            guard !isShowingInlineTouchID else {
+                return
+            }
+
+            focusPrimaryPassphraseField()
+        }
     }
 
     private var header: some View {
         VStack(alignment: headerStackAlignment, spacing: 12) {
-            viewModel.resolveIcon()
-                .resizable()
-                .scaledToFit()
-                .frame(width: 40, height: 40)
-                .foregroundStyle(iconForegroundStyle)
+            headerVisual
 
             VStack(alignment: headerStackAlignment, spacing: 8) {
                 Text(viewModel.dialog.title)
@@ -95,6 +100,23 @@ struct DialogCardView: View {
         .frame(maxWidth: .infinity, alignment: headerFrameAlignment)
     }
 
+    @ViewBuilder
+    private var headerVisual: some View {
+        if
+            viewModel.showsInlineTouchID,
+            let context = viewModel.inlineTouchIDContext
+        {
+            EmbeddedTouchIDView(context: context)
+                .frame(width: 34, height: 34)
+        } else {
+            viewModel.resolveIcon()
+                .resizable()
+                .scaledToFit()
+                .frame(width: 40, height: 40)
+                .foregroundStyle(iconForegroundStyle)
+        }
+    }
+
     private var errorSection: some View {
         Label {
             Text(viewModel.dialog.errorText ?? "")
@@ -104,6 +126,13 @@ struct DialogCardView: View {
         }
         .font(.callout)
         .foregroundStyle(Color(nsColor: .systemRed))
+    }
+
+    @ViewBuilder
+    private var passphraseContent: some View {
+        if !viewModel.showsInlineTouchID {
+            passphraseSection
+        }
     }
 
     private var passphraseSection: some View {
@@ -179,14 +208,16 @@ struct DialogCardView: View {
 
     private var buttonsSection: some View {
         VStack(spacing: 10) {
-            Button(action: viewModel.confirm) {
-                Text(viewModel.primaryActionTitle)
-                    .frame(maxWidth: .infinity, minHeight: actionButtonHeight)
+            if !viewModel.showsInlineTouchID {
+                Button(action: viewModel.confirm) {
+                    Text(viewModel.primaryActionTitle)
+                        .frame(maxWidth: .infinity, minHeight: actionButtonHeight)
+                }
+                .modifier(PrimaryActionButtonModifier())
+                .controlSize(.large)
+                .disabled(!viewModel.isPrimaryActionEnabled)
+                .keyboardShortcut(.defaultAction)
             }
-            .modifier(PrimaryActionButtonModifier())
-            .controlSize(.large)
-            .disabled(!viewModel.isPrimaryActionEnabled)
-            .keyboardShortcut(.defaultAction)
 
             if let tertiaryActionTitle = viewModel.tertiaryActionTitle {
                 Button(action: viewModel.decline) {
@@ -197,13 +228,22 @@ struct DialogCardView: View {
                 .controlSize(.large)
             }
 
+            if viewModel.showsInlineTouchID {
+                Button(action: viewModel.usePasswordInstead) {
+                    Text(viewModel.usePasswordActionTitle)
+                        .frame(maxWidth: .infinity, minHeight: actionButtonHeight)
+                }
+                .modifier(SecondaryActionButtonModifier())
+                .controlSize(.large)
+            }
+
             Button(action: viewModel.cancel) {
                 Text(viewModel.secondaryActionTitle)
                     .frame(maxWidth: .infinity, minHeight: actionButtonHeight)
             }
-                .modifier(SecondaryActionButtonModifier())
-                .controlSize(.large)
-                .keyboardShortcut(.cancelAction)
+            .modifier(SecondaryActionButtonModifier())
+            .controlSize(.large)
+            .keyboardShortcut(.cancelAction)
         }
         .padding(.top, 6)
     }
@@ -222,7 +262,7 @@ struct DialogCardView: View {
     }
 
     private func focusPrimaryPassphraseField() {
-        guard viewModel.dialog.mode == .passphrase else {
+        guard viewModel.dialog.mode == .passphrase, !viewModel.showsInlineTouchID else {
             focusedField = nil
             return
         }
@@ -312,5 +352,17 @@ private struct SecondaryActionButtonModifier: ViewModifier {
             content
                 .buttonStyle(.bordered)
         }
+    }
+}
+
+private struct EmbeddedTouchIDView: NSViewRepresentable {
+    let context: LAContext
+
+    func makeNSView(context _: Context) -> LAAuthenticationView {
+        LAAuthenticationView(context: self.context, controlSize: .small)
+    }
+
+    func updateNSView(_ nsView: LAAuthenticationView, context _: Context) {
+        _ = nsView
     }
 }

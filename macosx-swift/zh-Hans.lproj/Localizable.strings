@@ -2,6 +2,7 @@
 "dialog.action.unlock" = "确定";
 "dialog.action.allow" = "允许";
 "dialog.action.cancel" = "取消";
+"dialog.action.use_password" = "使用密码……";
 "dialog.prompt.passphrase" = "口令";
 "dialog.prompt.confirm_prefix" = "再次输入";
 "dialog.prompt.confirm_format" = "再次输入%@";

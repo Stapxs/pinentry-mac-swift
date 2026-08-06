@@ -24,23 +24,109 @@
 
 #define GPG_SERVICE_NAME "GnuPG"
 
+static SecKeychainRef CopyConfiguredKeychain(void) {
+	SecKeychainRef keychainRef = nil;
+
+	NSString *keychainPath = [[NSUserDefaults standardUserDefaults] valueForKey:@"KeychainPath"];
+	const char *path = keychainPath.UTF8String;
+
+    if (keychainPath.length) {
+        if (SecKeychainOpen(path, &keychainRef) != 0) {
+            return nil;
+        }
+    } else if (SecKeychainCopyDefault(&keychainRef) != 0) {
+        return nil;
+    }
+
+	return keychainRef;
+}
+
+static NSString *PassphraseFromKeychainQuery(NSDictionary *lookupAttributes, BOOL *keychainUnusable) {
+	NSMutableDictionary *presenceAttributes = [lookupAttributes mutableCopy];
+	presenceAttributes[(NSString *)kSecReturnData] = (__bridge id)kCFBooleanFalse;
+
+	OSStatus status1 = SecItemCopyMatching((__bridge CFDictionaryRef)presenceAttributes, nil);
+
+	NSMutableDictionary *dataAttributes = [lookupAttributes mutableCopy];
+	dataAttributes[(NSString *)kSecReturnData] = (__bridge id)kCFBooleanTrue;
+
+	CFTypeRef passphraseData = nil;
+	OSStatus status2 = SecItemCopyMatching((__bridge CFDictionaryRef)dataAttributes, &passphraseData);
+
+	if (status1 == errSecSuccess) {
+		if (status2 == errSecAuthFailed || status2 == errSecUserCanceled) {
+			if (keychainUnusable) {
+				*keychainUnusable = YES;
+			}
+		}
+	}
+
+	if (status2 != errSecSuccess) {
+		return nil;
+	}
+
+	NSString *passphrase = [[NSString alloc] initWithData:(__bridge NSData *)passphraseData encoding:NSUTF8StringEncoding];
+	CFRelease(passphraseData);
+
+	return passphrase;
+}
+
+
+BOOL hasPassphraseInKeychain(NSString *fingerprint) {
+	SecKeychainRef keychainRef = CopyConfiguredKeychain();
+	if (!keychainRef) {
+		return NO;
+	}
+
+	NSDictionary *attributes = [NSDictionary dictionaryWithObjectsAndKeys:
+								kSecClassGenericPassword, kSecClass,
+								@GPG_SERVICE_NAME, kSecAttrService,
+								fingerprint, kSecAttrAccount,
+								kCFBooleanFalse, kSecReturnData,
+								keychainRef, kSecUseKeychain,
+								nil];
+
+	OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)attributes, nil);
+
+	if (keychainRef) {
+		CFRelease(keychainRef);
+	}
+
+	return status == errSecSuccess;
+}
+
+BOOL hasPassphraseInKeychainWithLabel(NSString *label) {
+	SecKeychainRef keychainRef = CopyConfiguredKeychain();
+	if (!keychainRef) {
+		return NO;
+	}
+
+	NSDictionary *attributes = [NSDictionary dictionaryWithObjectsAndKeys:
+								kSecClassGenericPassword, kSecClass,
+								@GPG_SERVICE_NAME, kSecAttrService,
+								label, kSecAttrLabel,
+								kSecMatchLimitOne, kSecMatchLimit,
+								kCFBooleanFalse, kSecReturnData,
+								keychainRef, kSecUseKeychain,
+								nil];
+
+	OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)attributes, nil);
+
+	if (keychainRef) {
+		CFRelease(keychainRef);
+	}
+
+	return status == errSecSuccess;
+}
+
 
 BOOL storePassphraseInKeychain(NSString *fingerprint, NSString *passphrase, NSString *label) {
 	OSStatus status;
 	SecKeychainItemRef itemRef = nil;
-	SecKeychainRef keychainRef = nil;
-
-    NSString *keychainPath = [[NSUserDefaults standardUserDefaults] valueForKey:@"KeychainPath"];
-    const char *path = keychainPath.UTF8String;
-
-
-    if (keychainPath.length) {
-        if (SecKeychainOpen(path, &keychainRef) != 0) {
-            return NO;
-        }
-    } else if (SecKeychainCopyDefault(&keychainRef) != 0) {
-        return NO;
-    }
+	SecKeychainRef keychainRef = CopyConfiguredKeychain();
+	if (!keychainRef) {
+		return NO;
+	}
 
 	if (!label) {
 		label = @GPG_SERVICE_NAME;
@@ -85,64 +171,44 @@ BOOL storePassphraseInKeychain(NSString *fingerprint, NSString *passphrase, NSSt
 }
 
 NSString *getPassphraseFromKeychain(NSString *fingerprint, BOOL *keychainUnusable) {
-	SecKeychainRef keychainRef = nil;
-
-	NSString *keychainPath = [[NSUserDefaults standardUserDefaults] valueForKey:@"KeychainPath"];
-	const char *path = keychainPath.UTF8String;
-
-    if (keychainPath.length && SecKeychainOpen(path, &keychainRef) != 0) {
+	SecKeychainRef keychainRef = CopyConfiguredKeychain();
+	if (!keychainRef) {
 		return nil;
-    }
+	}
 
 	NSDictionary *attributes = [NSDictionary dictionaryWithObjectsAndKeys:
 								kSecClassGenericPassword, kSecClass,
 								@GPG_SERVICE_NAME, kSecAttrService,
 								fingerprint, kSecAttrAccount,
-								kCFBooleanFalse, kSecReturnData,
 								keychainRef, kSecUseKeychain,
 								nil];
-
-	int status1 = SecItemCopyMatching((__bridge CFDictionaryRef)attributes, nil);
-
-
-
-	attributes = [NSDictionary dictionaryWithObjectsAndKeys:
-								kSecClassGenericPassword, kSecClass,
-								@GPG_SERVICE_NAME, kSecAttrService,
-								fingerprint, kSecAttrAccount,
-								kCFBooleanTrue, kSecReturnData,
-								keychainRef, kSecUseKeychain,
-								nil];
-	CFTypeRef passphraseData = nil;
-
-	int status2 = SecItemCopyMatching((__bridge CFDictionaryRef)attributes, &passphraseData);
-
-	if (status1 == errSecSuccess) {
-		if (status2 == errSecAuthFailed) {
-			// The keychain is unusable because of the Apple bug radar://50789571
-			// Do not try to use the keychain in any form.
-			if (keychainUnusable) {
-				*keychainUnusable = YES;
-			}
-		} else if (status2 == errSecUserCanceled) {
-			// The user did not allow pinentry to use the keychain.
-			// Do not use the keychain, do prevent removing or overwriting of the correct passphrase.
-			if (keychainUnusable) {
-				*keychainUnusable = YES;
-			}
-		}
-	}
+	NSString *passphrase = PassphraseFromKeychainQuery(attributes, keychainUnusable);
 
 	if (keychainRef) {
 		CFRelease(keychainRef);
 	}
-	if (status2 != 0) {
+
+	return passphrase;
+}
+
+NSString *getPassphraseFromKeychainWithLabel(NSString *label, BOOL *keychainUnusable) {
+	SecKeychainRef keychainRef = CopyConfiguredKeychain();
+	if (!keychainRef) {
 		return nil;
 	}
 
-	NSString *passphrase = [[NSString alloc] initWithData:(__bridge NSData *)passphraseData encoding:NSUTF8StringEncoding];
+	NSDictionary *attributes = [NSDictionary dictionaryWithObjectsAndKeys:
+								kSecClassGenericPassword, kSecClass,
+								@GPG_SERVICE_NAME, kSecAttrService,
+								label, kSecAttrLabel,
+								kSecMatchLimitOne, kSecMatchLimit,
+								keychainRef, kSecUseKeychain,
+								nil];
+	NSString *passphrase = PassphraseFromKeychainQuery(attributes, keychainUnusable);
 
-	CFRelease(passphraseData);
+	if (keychainRef) {
+		CFRelease(keychainRef);
+	}
 
 	return passphrase;
 }

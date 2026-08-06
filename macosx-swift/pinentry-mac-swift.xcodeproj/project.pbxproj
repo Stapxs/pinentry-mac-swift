@@ -395,6 +395,10 @@
 					"-lassuan",
 					"-lgpg-error",
 					"-framework",
+					LocalAuthentication,
+					"-framework",
+					LocalAuthenticationEmbeddedUI,
+					"-framework",
 					Security,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = org.gpgtools.pinentry-mac-swift;
@@ -444,6 +448,10 @@
 					"-L/opt/homebrew/lib",
 					"-lassuan",
 					"-lgpg-error",
+					"-framework",
+					LocalAuthentication,
+					"-framework",
+					LocalAuthenticationEmbeddedUI,
 					"-framework",
 					Security,
 				);

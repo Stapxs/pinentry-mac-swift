@@ -27,6 +27,10 @@ struct DialogModel: Equatable {
     let showTypingToggleAvailable: Bool
     let saveInKeychainDefault: Bool
     let showTypingDefault: Bool
+    let attemptsAutomaticTouchID: Bool
+    let automaticTouchIDPrompt: String?
+    let automaticTouchIDCacheID: String?
+    let automaticTouchIDKeychainLabel: String?
     let timeoutSeconds: Int?
     let iconSource: IconSource
 }
@@ -45,4 +49,6 @@ struct DialogResponse: Equatable {
     let declined: Bool
     let passphrase: String
     let saveInKeychain: Bool
+    let pinFromCache: Bool
+    let keychainUnusable: Bool
 }
