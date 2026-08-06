@@ -63,32 +63,36 @@ struct DialogCardView: View {
     }
 
     private var header: some View {
-        HStack(alignment: .top, spacing: 14) {
+        VStack(alignment: headerStackAlignment, spacing: 12) {
             viewModel.resolveIcon()
                 .resizable()
                 .scaledToFit()
                 .frame(width: 40, height: 40)
                 .foregroundStyle(iconForegroundStyle)
 
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: headerStackAlignment, spacing: 8) {
                 Text(viewModel.dialog.title)
                     .font(.title3.weight(.semibold))
                     .foregroundStyle(Color.primary)
+                    .multilineTextAlignment(headerTextAlignment)
                     .fixedSize(horizontal: false, vertical: true)
 
                 Text(viewModel.dialog.message)
                     .font(.callout)
                     .foregroundStyle(Color.secondary)
                     .lineSpacing(1)
+                    .multilineTextAlignment(headerTextAlignment)
                     .fixedSize(horizontal: false, vertical: true)
 
                 if let keyboardPrompt = viewModel.keyboardPrompt {
                     Text(keyboardPrompt)
                         .font(.footnote.weight(.medium))
                         .foregroundStyle(Color.secondary)
+                        .multilineTextAlignment(headerTextAlignment)
                 }
             }
         }
+        .frame(maxWidth: .infinity, alignment: headerFrameAlignment)
     }
 
     private var errorSection: some View {
@@ -245,6 +249,30 @@ struct DialogCardView: View {
         }
 
         return AnyShapeStyle(Color.primary)
+    }
+
+    private var headerStackAlignment: HorizontalAlignment {
+        if #available(macOS 26.0, *) {
+            return .leading
+        }
+
+        return .center
+    }
+
+    private var headerFrameAlignment: Alignment {
+        if #available(macOS 26.0, *) {
+            return .leading
+        }
+
+        return .center
+    }
+
+    private var headerTextAlignment: TextAlignment {
+        if #available(macOS 26.0, *) {
+            return .leading
+        }
+
+        return .center
     }
 
     private func qualityColor(for assessment: PassphraseQualityAssessment) -> Color {
