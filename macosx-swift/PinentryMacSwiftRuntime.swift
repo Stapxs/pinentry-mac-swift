@@ -3,6 +3,41 @@ import Darwin
 import Foundation
 import SwiftUI
 
+private let windowMinimumContentSize = NSSize(width: 300, height: 0)
+private let windowMaximumContentSize = NSSize(width: 420, height: 640)
+
+private final class PinentryPanelWindow: NSWindow {
+    override var canBecomeKey: Bool { true }
+    override var canBecomeMain: Bool { true }
+}
+
+@MainActor
+private final class PinentryHostingController: NSHostingController<PrototypeWindowView> {
+    var preferredSizeDidChange: ((NSSize) -> Void)?
+
+    init(coordinator: WindowPresentationCoordinator) {
+        super.init(rootView: PrototypeWindowView(coordinator: coordinator))
+        if #available(macOS 13.0, *) {
+            sizingOptions = [.preferredContentSize, .intrinsicContentSize]
+        }
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override var preferredContentSize: NSSize {
+        didSet {
+            guard preferredContentSize != oldValue else {
+                return
+            }
+
+            preferredSizeDidChange?(preferredContentSize)
+        }
+    }
+}
+
 @objc(CPinentryRequest)
 final class CPinentryRequest: NSObject {
     @objc var requiresPassphrase = false
@@ -97,6 +132,24 @@ final class PinentryMacSwiftRuntime: NSObject {
 
     @MainActor
     private static func present(_ request: CPinentryRequest) async -> CPinentryResponse {
+        NSLog(
+            """
+            [pinentry-mac-swift][request]
+            payload: title=%@ | message=%@ | prompt=%@ | ok=%@ | cancel=%@ | notOk=%@ | timeout=%d | userData=%@
+            l10n:
+            %@
+            """,
+            request.title ?? "<nil>",
+            request.message ?? "<nil>",
+            request.promptText ?? "<nil>",
+            request.okText ?? "<nil>",
+            request.cancelText ?? "<nil>",
+            request.notOkText ?? "<nil>",
+            request.timeoutSeconds,
+            request.userData ?? "<nil>",
+            L10n.debugLocalizationContext()
+        )
+
         let mapper = PinentryRequestMapper()
         let model = mapper.map(request.payload)
         let qualityEstimator = PinentryInquiryQualityEstimator(
@@ -105,12 +158,25 @@ final class PinentryMacSwiftRuntime: NSObject {
         let coordinator = WindowPresentationCoordinator(
             qualityEstimator: qualityEstimator
         )
-        let window = makeWindow(coordinator: coordinator)
+        coordinator.show(dialog: model)
+
+        let hostingController = PinentryHostingController(coordinator: coordinator)
+        let window = makeWindow(hostingController: hostingController)
+        hostingController.preferredSizeDidChange = { [weak window] preferredSize in
+            guard let window else {
+                return
+            }
+
+            applyPreferredWindowSize(preferredSize, to: window, animated: true)
+        }
+        applyPreferredWindowSize(preferredWindowSize(for: hostingController), to: window, animated: false)
         window.center()
+        NSApp.setActivationPolicy(.accessory)
         NSApp.activate(ignoringOtherApps: true)
         window.makeKeyAndOrderFront(nil)
+        window.orderFrontRegardless()
 
-        let response = await coordinator.present(dialog: model)
+        let response = await coordinator.waitForResponse()
         window.close()
 
         let bridgeResult = PinentryResultWriter().makeResult(
@@ -121,23 +187,96 @@ final class PinentryMacSwiftRuntime: NSObject {
     }
 
     @MainActor
-    private static func makeWindow(coordinator: WindowPresentationCoordinator) -> NSWindow {
-        let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 560, height: 540),
-            styleMask: [.titled, .closable, .fullSizeContentView],
+    private static func makeWindow(hostingController: PinentryHostingController) -> NSWindow {
+        let window = PinentryPanelWindow(
+            contentRect: NSRect(x: 0, y: 0, width: windowMinimumContentSize.width, height: 320),
+            styleMask: [.borderless],
             backing: .buffered,
             defer: false
         )
-        window.title = "pinentry-mac-swift"
-        window.titleVisibility = .hidden
-        window.titlebarAppearsTransparent = true
+        window.isOpaque = false
+        window.backgroundColor = .clear
+        window.hasShadow = true
         window.isReleasedWhenClosed = false
-        window.level = .floating
+        window.level = .modalPanel
         window.collectionBehavior = [.moveToActiveSpace, .transient]
-        window.contentView = NSHostingView(
-            rootView: PrototypeWindowView(coordinator: coordinator)
+        window.isMovableByWindowBackground = true
+        window.animationBehavior = .alertPanel
+
+        let hostingView = hostingController.view
+        hostingView.translatesAutoresizingMaskIntoConstraints = false
+
+        window.contentView = makeGlassContainer(
+            hostingView: hostingView,
+            frame: NSRect(origin: .zero, size: window.frame.size)
         )
         return window
+    }
+
+    @MainActor
+    private static func makeGlassContainer(hostingView: NSView, frame: NSRect) -> NSView {
+        if #available(macOS 26.0, *) {
+            let glassView = NSGlassEffectView(frame: frame)
+            glassView.contentView = hostingView
+            glassView.cornerRadius = 26
+            glassView.style = .regular
+            glassView.tintColor = NSColor.white.withAlphaComponent(0.12)
+            if #available(macOS 27.0, *) {
+                glassView.effectIsInteractive = true
+            }
+            return glassView
+        }
+
+        let effectView = NSVisualEffectView(frame: frame)
+        effectView.material = .hudWindow
+        effectView.blendingMode = .behindWindow
+        effectView.state = .active
+        effectView.wantsLayer = true
+        effectView.layer?.cornerRadius = 26
+        effectView.layer?.masksToBounds = true
+        effectView.layer?.borderWidth = 1
+        effectView.layer?.borderColor = NSColor.white.withAlphaComponent(0.16).cgColor
+
+        effectView.addSubview(hostingView)
+        NSLayoutConstraint.activate([
+            hostingView.leadingAnchor.constraint(equalTo: effectView.leadingAnchor),
+            hostingView.trailingAnchor.constraint(equalTo: effectView.trailingAnchor),
+            hostingView.topAnchor.constraint(equalTo: effectView.topAnchor),
+            hostingView.bottomAnchor.constraint(equalTo: effectView.bottomAnchor)
+        ])
+        return effectView
+    }
+
+    @MainActor
+    private static func preferredWindowSize(for hostingController: PinentryHostingController) -> NSSize {
+        let unconstrained = hostingController.sizeThatFits(
+            in: CGSize(
+                width: windowMaximumContentSize.width,
+                height: windowMaximumContentSize.height
+            )
+        )
+
+        return clampedWindowSize(for: NSSize(width: unconstrained.width, height: unconstrained.height))
+    }
+
+    @MainActor
+    private static func applyPreferredWindowSize(_ preferredSize: NSSize, to window: NSWindow, animated: Bool) {
+        let clampedSize = clampedWindowSize(for: preferredSize)
+        let currentFrame = window.frame
+        let newFrame = NSRect(
+            x: currentFrame.minX,
+            y: currentFrame.maxY - clampedSize.height,
+            width: clampedSize.width,
+            height: clampedSize.height
+        )
+        window.setFrame(newFrame, display: true, animate: animated)
+    }
+
+    private static func clampedWindowSize(for size: NSSize) -> NSSize {
+        NSSize(
+            width: min(max(size.width, windowMinimumContentSize.width), windowMaximumContentSize.width),
+            height: min(max(size.height, 0), windowMaximumContentSize.height)
+        )
     }
 }
 

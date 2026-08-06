@@ -14,7 +14,7 @@ struct IconResolver: IconResolving {
         case .filePath(let path):
             return NSImage(contentsOfFile: path)
         case .appIcon:
-            if let image = NSImage(named: "Icon") {
+            if let image = AppRuntimeBundle.bundle.image(forResource: NSImage.Name("Icon")) {
                 return image
             }
 

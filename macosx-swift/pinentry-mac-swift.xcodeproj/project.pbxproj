@@ -26,6 +26,8 @@
 		A10B01000000000000000011 /* PinentryPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10B00100000000000000012 /* PinentryPresenter.swift */; };
 		A10B01000000000000000012 /* PinentryResultWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10B00100000000000000013 /* PinentryResultWriter.swift */; };
 		A10B01000000000000000013 /* WindowPresentationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10B00100000000000000014 /* WindowPresentationCoordinator.swift */; };
+		A10B01000000000000000014 /* Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10B00100000000000000015 /* Localization.swift */; };
+		A10B01000000000000000015 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = A10B00100000000000000018 /* Localizable.strings */; };
 		A10B02000000000000000001 /* MacOSXSwiftMain.m in Sources */ = {isa = PBXBuildFile; fileRef = A10B02100000000000000001 /* MacOSXSwiftMain.m */; };
 		A10B02000000000000000002 /* MacOSXSwiftAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A10B02100000000000000003 /* MacOSXSwiftAppDelegate.m */; };
 		A10B02000000000000000003 /* PinentryCHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = A10B02100000000000000005 /* PinentryCHandler.m */; };
@@ -55,6 +57,9 @@
 		A10B00100000000000000012 /* PinentryPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinentryPresenter.swift; sourceTree = "<group>"; };
 		A10B00100000000000000013 /* PinentryResultWriter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinentryResultWriter.swift; sourceTree = "<group>"; };
 		A10B00100000000000000014 /* WindowPresentationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowPresentationCoordinator.swift; sourceTree = "<group>"; };
+		A10B00100000000000000015 /* Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localization.swift; sourceTree = "<group>"; };
+		A10B00100000000000000016 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		A10B00100000000000000017 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		A10B02100000000000000001 /* MacOSXSwiftMain.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MacOSXSwiftMain.m; sourceTree = "<group>"; };
 		A10B02100000000000000002 /* MacOSXSwiftAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MacOSXSwiftAppDelegate.h; sourceTree = "<group>"; };
 		A10B02100000000000000003 /* MacOSXSwiftAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MacOSXSwiftAppDelegate.m; sourceTree = "<group>"; };
@@ -104,6 +109,7 @@
 				A10B00100000000000000006 /* Assets.xcassets */,
 				A10B00100000000000000007 /* PreviewAssets.xcassets */,
 				A10B00100000000000000008 /* Info.plist */,
+				A10B00100000000000000018 /* Localizable.strings */,
 				A10B02100000000000000006 /* PinentryMacSwift-Bridging-Header.h */,
 			);
 			path = "";
@@ -158,6 +164,7 @@
 				A10B0010000000000000000D /* UserDataParser.swift */,
 				A10B0010000000000000000E /* CStringDecoder.swift */,
 				A10B0010000000000000000F /* CacheIdentifierPolicy.swift */,
+				A10B00100000000000000015 /* Localization.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -229,6 +236,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				"zh-Hans",
 				Base,
 			);
 			mainGroup = A10B000F0000000000000003;
@@ -249,6 +257,7 @@
 				A10B01000000000000000005 /* Icon.icns in Resources */,
 				A10B01000000000000000006 /* Assets.xcassets in Resources */,
 				A10B01000000000000000007 /* PreviewAssets.xcassets in Resources */,
+				A10B01000000000000000015 /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -306,6 +315,7 @@
 				A10B01000000000000000011 /* PinentryPresenter.swift in Sources */,
 				A10B01000000000000000012 /* PinentryResultWriter.swift in Sources */,
 				A10B01000000000000000013 /* WindowPresentationCoordinator.swift in Sources */,
+				A10B01000000000000000014 /* Localization.swift in Sources */,
 				A10B02000000000000000003 /* PinentryCHandler.m in Sources */,
 				A10B02000000000000000004 /* KeychainSupport.m in Sources */,
 				A10B02000000000000000005 /* NSStringExtensions.m in Sources */,
@@ -313,6 +323,18 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		A10B00100000000000000018 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				A10B00100000000000000016 /* en */,
+				A10B00100000000000000017 /* zh-Hans */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		A10B000F000000000000000A /* Debug */ = {

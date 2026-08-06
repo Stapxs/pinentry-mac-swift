@@ -12,7 +12,7 @@ struct PassphraseQualityAssessment: Equatable {
     let grade: Grade
 
     var label: String {
-        grade.rawValue.capitalized
+        L10n.qualityLabel(for: grade)
     }
 }
 

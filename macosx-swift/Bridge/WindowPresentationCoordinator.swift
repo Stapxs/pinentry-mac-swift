@@ -25,8 +25,16 @@ final class WindowPresentationCoordinator: ObservableObject, PinentryPresenter {
     }
 
     func present(dialog: DialogModel) async -> DialogResponse {
-        activeViewModel = makeViewModel(for: dialog)
+        show(dialog: dialog)
 
+        return await waitForResponse()
+    }
+
+    func show(dialog: DialogModel) {
+        activeViewModel = makeViewModel(for: dialog)
+    }
+
+    func waitForResponse() async -> DialogResponse {
         return await withCheckedContinuation { continuation in
             self.continuation = continuation
         }
@@ -46,6 +54,5 @@ final class WindowPresentationCoordinator: ObservableObject, PinentryPresenter {
     private func finish(_ response: DialogResponse) {
         continuation?.resume(returning: response)
         continuation = nil
-        activeViewModel = nil
     }
 }

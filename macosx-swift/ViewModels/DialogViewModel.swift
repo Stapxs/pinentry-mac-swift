@@ -34,6 +34,22 @@ final class DialogViewModel: ObservableObject {
         self.saveInKeychain = dialog.saveInKeychainDefault
         self.showTypedPassphrase = dialog.showTypingDefault
         self.remainingSeconds = dialog.timeoutSeconds
+
+        NSLog(
+            """
+            [pinentry-mac-swift][view-model]
+            dialog: title=%@ | prompt=%@ | ok=%@ | cancel=%@
+            local: showTyping=%@ | saveInKeychain=%@ | timeout=%@
+            """,
+            dialog.title,
+            dialog.promptText ?? "<nil>",
+            dialog.okText,
+            dialog.cancelText,
+            L10n.showTyping,
+            L10n.saveInKeychain,
+            dialog.timeoutSeconds.map { L10n.timeoutHint(secondsRemaining: $0) } ?? "<nil>"
+        )
+
         beginTimeoutIfNeeded()
     }
 
@@ -69,15 +85,18 @@ final class DialogViewModel: ObservableObject {
 
     var promptText: String {
         let trimmed = dialog.promptText?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        return trimmed.isEmpty ? "Passphrase" : trimmed
+        return trimmed.isEmpty ? L10n.defaultPassphrasePrompt : trimmed
     }
 
     var confirmPromptText: String {
-        if promptText.lowercased().contains("confirm") {
-            return promptText
+        let normalizedPrompt = promptText.trimmingCharacters(in: .whitespacesAndNewlines)
+        let lowercasePrompt = normalizedPrompt.lowercased()
+
+        if lowercasePrompt.contains("confirm") || normalizedPrompt.hasPrefix(L10n.confirmPromptPrefix) {
+            return normalizedPrompt
         }
 
-        return "Confirm \(promptText)"
+        return L10n.confirmPrompt(normalizedPrompt)
     }
 
     var mismatchHint: String? {
@@ -85,7 +104,7 @@ final class DialogViewModel: ObservableObject {
             return nil
         }
 
-        return "The two passphrases must match."
+        return L10n.mismatchHint
     }
 
     var qualityAssessment: PassphraseQualityAssessment? {
@@ -110,7 +129,7 @@ final class DialogViewModel: ObservableObject {
             return nil
         }
 
-        return "This request times out in \(remainingSeconds)s."
+        return L10n.timeoutHint(secondsRemaining: remainingSeconds)
     }
 
     func resolveIcon() -> Image {

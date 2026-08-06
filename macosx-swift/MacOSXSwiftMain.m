@@ -44,8 +44,8 @@ int main(int argc, char *argv[]) {
 #ifdef CODE_SIGN_CHECK
         if (!isBundleValidSigned([NSBundle mainBundle])) {
             NSRunAlertPanel(
-                @"Someone tampered with your installation of pinentry-mac-swift!",
-                @"To keep you safe, pinentry-mac-swift will exit now.",
+                NSLocalizedString(@"app.alert.integrity.title", nil),
+                NSLocalizedString(@"app.alert.integrity.message", nil),
                 nil,
                 nil,
                 nil

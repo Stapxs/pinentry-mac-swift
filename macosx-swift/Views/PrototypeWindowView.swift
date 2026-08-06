@@ -16,50 +16,23 @@ struct PrototypeWindowView: View {
     }
 
     var body: some View {
-        ZStack {
-            backgroundLayer
-
+        Group {
             if let viewModel = coordinator.activeViewModel {
                 DialogCardView(viewModel: viewModel)
-                    .padding(36)
-            } else {
-                EmptyCardPlaceholder()
-                    .padding(36)
             }
         }
-        .frame(minWidth: 520, minHeight: 480)
-    }
-
-    private var backgroundLayer: some View {
-        LinearGradient(
-            colors: [
-                Color(nsColor: NSColor(calibratedWhite: 0.96, alpha: 1.0)),
-                Color(nsColor: NSColor(calibratedWhite: 0.88, alpha: 1.0))
-            ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
-        .overlay(alignment: .topTrailing) {
-            Circle()
-                .fill(Color.white.opacity(0.45))
-                .frame(width: 220, height: 220)
-                .blur(radius: 18)
-                .offset(x: 70, y: -80)
-        }
-        .overlay(alignment: .bottomLeading) {
-            RoundedRectangle(cornerRadius: 80, style: .continuous)
-                .fill(Color.black.opacity(0.05))
-                .frame(width: 260, height: 200)
-                .rotationEffect(.degrees(18))
-                .offset(x: -90, y: 70)
-        }
-        .ignoresSafeArea()
+        .padding(.horizontal, 18)
+        .padding(.top, 25)
+        .padding(.bottom, 17)
+        .frame(minWidth: 248, idealWidth: 288, maxWidth: 320, alignment: .topLeading)
+        .background(Color.clear)
     }
 }
 
 struct DialogCardView: View {
     @ObservedObject var viewModel: DialogViewModel
     @FocusState private var focusedField: Field?
+    private let actionButtonHeight: CGFloat = 18
 
     private enum Field: Hashable {
         case passphrase
@@ -67,97 +40,85 @@ struct DialogCardView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 22) {
-            header
+        VStack(alignment: .leading, spacing: 18) {
+            VStack(alignment: .leading, spacing: 18) {
+                header
 
-            if viewModel.state.showsErrorSection {
-                errorSection
-                    .transition(.opacity.combined(with: .move(edge: .top)))
-            }
+                if viewModel.state.showsErrorSection {
+                    errorSection
+                        .transition(.opacity.combined(with: .move(edge: .top)))
+                }
 
-            if viewModel.dialog.mode == .passphrase {
-                passphraseSection
-                    .transition(.opacity.combined(with: .move(edge: .top)))
+                if viewModel.dialog.mode == .passphrase {
+                    passphraseSection
+                        .transition(.opacity.combined(with: .move(edge: .top)))
+                }
             }
+            .padding(.horizontal, 5)
 
             buttonsSection
         }
-        .padding(28)
-        .frame(maxWidth: 460)
-        .background(cardBackground)
+        .frame(minWidth: 220, idealWidth: 270, maxWidth: 320, alignment: .leading)
         .animation(.easeInOut(duration: 0.18), value: viewModel.state.isExpanded)
         .onAppear {
-            focusedField = viewModel.dialog.mode == .passphrase ? .passphrase : nil
+            focusPrimaryPassphraseField()
+        }
+        .onChange(of: viewModel.showTypedPassphrase) { _ in
+            focusPrimaryPassphraseField()
         }
     }
 
     private var header: some View {
-        HStack(alignment: .top, spacing: 16) {
+        HStack(alignment: .top, spacing: 14) {
             viewModel.resolveIcon()
                 .resizable()
                 .scaledToFit()
-                .frame(width: 52, height: 52)
+                .frame(width: 40, height: 40)
                 .foregroundStyle(iconForegroundStyle)
-                .padding(10)
-                .background(
-                    RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .fill(Color.white.opacity(0.72))
-                )
 
             VStack(alignment: .leading, spacing: 8) {
                 Text(viewModel.dialog.title)
-                    .font(.system(size: 22, weight: .semibold))
+                    .font(.title3.weight(.semibold))
                     .foregroundStyle(Color.primary)
                     .fixedSize(horizontal: false, vertical: true)
 
                 Text(viewModel.dialog.message)
-                    .font(.system(size: 14))
+                    .font(.callout)
                     .foregroundStyle(Color.secondary)
-                    .lineSpacing(2)
+                    .lineSpacing(1)
                     .fixedSize(horizontal: false, vertical: true)
 
                 if let keyboardPrompt = viewModel.keyboardPrompt {
                     Text(keyboardPrompt)
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundStyle(Color.secondary.opacity(0.95))
+                        .font(.footnote.weight(.medium))
+                        .foregroundStyle(Color.secondary)
                 }
             }
         }
     }
 
     private var errorSection: some View {
-        HStack(alignment: .top, spacing: 10) {
-            Image(systemName: "exclamationmark.circle.fill")
-                .foregroundStyle(.red)
-
+        Label {
             Text(viewModel.dialog.errorText ?? "")
-                .font(.system(size: 13, weight: .medium))
-                .foregroundStyle(Color.red.opacity(0.9))
                 .fixedSize(horizontal: false, vertical: true)
+        } icon: {
+            Image(systemName: "exclamationmark.triangle.fill")
         }
-        .padding(14)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(Color.red.opacity(0.08))
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .stroke(Color.red.opacity(0.14), lineWidth: 1)
-        )
+        .font(.callout)
+        .foregroundStyle(Color(nsColor: .systemRed))
     }
 
     private var passphraseSection: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            passwordField(
-                placeholder: viewModel.promptText,
+        VStack(alignment: .leading, spacing: 12) {
+            labeledPasswordField(
+                title: viewModel.promptText,
                 text: $viewModel.passphrase,
                 field: .passphrase
             )
 
             if viewModel.state.showsRepeatField {
-                passwordField(
-                    placeholder: viewModel.confirmPromptText,
+                labeledPasswordField(
+                    title: viewModel.confirmPromptText,
                     text: $viewModel.repeatedPassphrase,
                     field: .repeatedPassphrase
                 )
@@ -166,8 +127,8 @@ struct DialogCardView: View {
 
             if let mismatchHint = viewModel.mismatchHint {
                 Text(mismatchHint)
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(Color.red.opacity(0.88))
+                    .font(.footnote.weight(.medium))
+                    .foregroundStyle(Color(nsColor: .systemRed))
                     .transition(.opacity)
             }
 
@@ -184,117 +145,104 @@ struct DialogCardView: View {
     }
 
     private func qualitySection(assessment: PassphraseQualityAssessment) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text("Passphrase Strength")
-                    .font(.system(size: 12, weight: .medium))
+                Text(L10n.qualityTitle)
+                    .font(.callout.weight(.medium))
                     .foregroundStyle(Color.secondary)
 
                 Spacer()
 
                 Text(assessment.label)
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(.callout.weight(.semibold))
                     .foregroundStyle(qualityColor(for: assessment))
             }
 
-            GeometryReader { proxy in
-                ZStack(alignment: .leading) {
-                    Capsule(style: .continuous)
-                        .fill(Color.black.opacity(0.08))
-
-                    Capsule(style: .continuous)
-                        .fill(qualityColor(for: assessment))
-                        .frame(width: max(proxy.size.width * assessment.score, 12))
-                }
-            }
-            .frame(height: 8)
+            ProgressView(value: assessment.score)
+                .tint(qualityColor(for: assessment))
+                .controlSize(.small)
         }
-        .padding(14)
-        .background(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(Color.white.opacity(0.5))
-        )
     }
 
     private var optionsSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 8) {
             if viewModel.dialog.showTypingToggleAvailable {
-                Toggle("Show typing", isOn: $viewModel.showTypedPassphrase)
+                Toggle(L10n.showTyping, isOn: $viewModel.showTypedPassphrase)
                     .toggleStyle(.checkbox)
             }
 
             if viewModel.dialog.canUseKeychain {
-                Toggle("Remember in Keychain", isOn: $viewModel.saveInKeychain)
+                Toggle(L10n.saveInKeychain, isOn: $viewModel.saveInKeychain)
                     .toggleStyle(.checkbox)
             }
         }
-        .font(.system(size: 13))
-        .padding(14)
-        .background(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(Color.white.opacity(0.5))
-        )
+        .font(.callout)
     }
 
     private var buttonsSection: some View {
         VStack(spacing: 10) {
             Button(action: viewModel.confirm) {
                 Text(viewModel.primaryActionTitle)
-                    .frame(maxWidth: .infinity)
+                    .frame(maxWidth: .infinity, minHeight: actionButtonHeight)
             }
-            .buttonStyle(PrimaryStackedButtonStyle())
+            .modifier(PrimaryActionButtonModifier())
+            .controlSize(.large)
             .disabled(!viewModel.isPrimaryActionEnabled)
             .keyboardShortcut(.defaultAction)
 
             if let tertiaryActionTitle = viewModel.tertiaryActionTitle {
                 Button(action: viewModel.decline) {
                     Text(tertiaryActionTitle)
-                        .frame(maxWidth: .infinity)
+                        .frame(maxWidth: .infinity, minHeight: actionButtonHeight)
                 }
-                .buttonStyle(SecondaryStackedButtonStyle())
+                .modifier(SecondaryActionButtonModifier())
+                .controlSize(.large)
             }
 
             Button(action: viewModel.cancel) {
                 Text(viewModel.secondaryActionTitle)
-                    .frame(maxWidth: .infinity)
+                    .frame(maxWidth: .infinity, minHeight: actionButtonHeight)
             }
-            .buttonStyle(SecondaryStackedButtonStyle())
-            .keyboardShortcut(.cancelAction)
+                .modifier(SecondaryActionButtonModifier())
+                .controlSize(.large)
+                .keyboardShortcut(.cancelAction)
         }
-        .padding(.top, 2)
+        .padding(.top, 6)
     }
 
-    private func passwordField(placeholder: String, text: Binding<String>, field: Field) -> some View {
+    private func labeledPasswordField(title: String, text: Binding<String>, field: Field) -> some View {
         Group {
             if viewModel.showTypedPassphrase {
-                TextField(placeholder, text: text)
+                TextField(title, text: text)
             } else {
-                SecureField(placeholder, text: text)
+                SecureField(title, text: text)
             }
         }
-        .textFieldStyle(.plain)
-        .font(.system(size: 16))
-        .padding(.horizontal, 14)
-        .padding(.vertical, 13)
-        .background(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(Color.white.opacity(0.86))
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .stroke(Color.black.opacity(0.08), lineWidth: 1)
-        )
+        .textFieldStyle(.roundedBorder)
+        .controlSize(.regular)
         .focused($focusedField, equals: field)
     }
 
-    private var cardBackground: some View {
-        RoundedRectangle(cornerRadius: 28, style: .continuous)
-            .fill(.ultraThickMaterial)
-            .overlay(
-                RoundedRectangle(cornerRadius: 28, style: .continuous)
-                    .stroke(Color.white.opacity(0.6), lineWidth: 1)
-            )
-            .shadow(color: Color.black.opacity(0.16), radius: 28, y: 18)
+    private func focusPrimaryPassphraseField() {
+        guard viewModel.dialog.mode == .passphrase else {
+            focusedField = nil
+            return
+        }
+
+        focusedField = nil
+
+        DispatchQueue.main.async {
+            NSApp.activate(ignoringOtherApps: true)
+            focusedField = .passphrase
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.08) {
+            focusedField = .passphrase
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {
+            focusedField = .passphrase
+        }
     }
 
     private var iconForegroundStyle: some ShapeStyle {
@@ -319,93 +267,51 @@ struct DialogCardView: View {
     }
 }
 
-private struct EmptyCardPlaceholder: View {
-    var body: some View {
-        VStack(spacing: 10) {
-            Image(systemName: "lock.circle")
-                .font(.system(size: 36))
-                .foregroundStyle(Color.secondary)
-
-            Text("No active pinentry request")
-                .font(.system(size: 18, weight: .semibold))
-
-            Text("The presentation coordinator will attach the next dialog here.")
-                .font(.system(size: 13))
-                .foregroundStyle(Color.secondary)
-                .multilineTextAlignment(.center)
+private struct PrimaryActionButtonModifier: ViewModifier {
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if #available(macOS 26.0, *) {
+            content
+                .buttonStyle(.glassProminent)
+        } else {
+            content
+                .buttonStyle(.borderedProminent)
         }
-        .padding(28)
-        .frame(maxWidth: 460)
-        .background(
-            RoundedRectangle(cornerRadius: 28, style: .continuous)
-                .fill(.ultraThickMaterial)
-        )
     }
 }
 
-struct PrimaryStackedButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(.system(size: 15, weight: .semibold))
-            .padding(.vertical, 13)
-            .foregroundStyle(Color.white)
-            .background(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(Color.accentColor.opacity(configuration.isPressed ? 0.8 : 0.96))
-            )
-            .scaleEffect(configuration.isPressed ? 0.995 : 1.0)
-    }
-}
-
-struct SecondaryStackedButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(.system(size: 15, weight: .medium))
-            .padding(.vertical, 13)
-            .foregroundStyle(Color.primary)
-            .background(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(Color.white.opacity(configuration.isPressed ? 0.46 : 0.62))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .stroke(Color.black.opacity(0.06), lineWidth: 1)
-            )
+private struct SecondaryActionButtonModifier: ViewModifier {
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if #available(macOS 26.0, *) {
+            content
+                .buttonStyle(.glass)
+        } else {
+            content
+                .buttonStyle(.bordered)
+        }
     }
 }
 
 struct DialogCardView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
-            preview(title: "Minimal", model: PreviewDialogs.minimalPassphrase)
-            preview(title: "Long Description", model: PreviewDialogs.longMessage)
-            preview(title: "Error State", model: PreviewDialogs.errorState)
-            preview(title: "Repeat Entry", model: PreviewDialogs.repeatEntry)
-            preview(title: "Quality Bar", model: PreviewDialogs.qualityEntry)
-            preview(title: "Options", model: PreviewDialogs.optionsEntry)
-            preview(title: "Confirm", model: PreviewDialogs.confirmOnly)
+            preview(title: L10n.tr("preview.name.minimal", fallback: "Minimal"), model: PreviewDialogs.minimalPassphrase)
+            preview(title: L10n.tr("preview.name.long", fallback: "Long Description"), model: PreviewDialogs.longMessage)
+            preview(title: L10n.tr("preview.name.error", fallback: "Error State"), model: PreviewDialogs.errorState)
+            preview(title: L10n.tr("preview.name.repeat", fallback: "Repeat Entry"), model: PreviewDialogs.repeatEntry)
+            preview(title: L10n.tr("preview.name.quality", fallback: "Quality Bar"), model: PreviewDialogs.qualityEntry)
+            preview(title: L10n.tr("preview.name.options", fallback: "Options"), model: PreviewDialogs.optionsEntry)
+            preview(title: L10n.tr("preview.name.confirm", fallback: "Confirm"), model: PreviewDialogs.confirmOnly)
         }
         .preferredColorScheme(.light)
     }
 
     private static func preview(title: String, model: DialogModel) -> some View {
-        ZStack {
-            LinearGradient(
-                colors: [
-                    Color(nsColor: NSColor(calibratedWhite: 0.96, alpha: 1.0)),
-                    Color(nsColor: NSColor(calibratedWhite: 0.88, alpha: 1.0))
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
-
-            DialogCardView(
-                viewModel: DialogViewModel(dialog: model)
-            )
-            .padding(36)
-        }
-        .frame(width: 560, height: 540)
+        PrototypeWindowView(
+            coordinator: WindowPresentationCoordinator(previewDialog: model)
+        )
+        .frame(width: 360, height: 430)
         .previewDisplayName(title)
     }
 }
