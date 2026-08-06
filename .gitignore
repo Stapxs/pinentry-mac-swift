@@ -1,5 +1,6 @@
 *.lo
 *.o
+.DS_Store
 .deps/
 .libs/
 /aclocal.m4
@@ -54,3 +55,7 @@ tty/Makefile
 /emacs/Makefile.in
 macosx/Makefile.in
 macosx/Makefile
+macosx-swift/Makefile.in
+macosx-swift/Makefile
+pinentry/libpinentry.a
+secmem/libsecmem.a

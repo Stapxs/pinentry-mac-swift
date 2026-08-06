@@ -111,6 +111,12 @@ else
 pinentry_macosx =
 endif
 
+if BUILD_PINENTRY_MACOSX_SWIFT
+pinentry_macosx_swift = macosx-swift
+else
+pinentry_macosx_swift =
+endif
+
 if BUILD_DOC
 doc = doc
 else
@@ -120,7 +126,7 @@ endif
 SUBDIRS = m4 secmem pinentry ${pinentry_curses} ${pinentry_tty} \
 	${pinentry_emacs} ${pinentry_gtk_2} ${pinentry_gnome_3} \
 	${pinentry_qt} ${pinentry_qt5} ${pinentry_qt4}  ${pinentry_tqt} ${pinentry_w32} \
-	${pinentry_fltk} ${pinentry_efl} ${pinentry_macosx} ${doc}
+	${pinentry_fltk} ${pinentry_efl} ${pinentry_macosx} ${pinentry_macosx_swift} ${doc}
 
 
 install-exec-local:

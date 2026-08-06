@@ -1,0 +1,6 @@
+pinentry-mac-old
+.DS_Store
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/

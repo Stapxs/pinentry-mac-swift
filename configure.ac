@@ -826,6 +826,10 @@ pinentry_macosx=no
 test $have_macosx_system = yes && pinentry_macosx=yes
 AM_CONDITIONAL(BUILD_PINENTRY_MACOSX, test "$pinentry_macosx" = "yes")
 
+pinentry_macosx_swift=no
+test $have_macosx_system = yes && pinentry_macosx_swift=yes
+AM_CONDITIONAL(BUILD_PINENTRY_MACOSX_SWIFT, test "$pinentry_macosx_swift" = "yes")
+
 
 # Figure out the default pinentry.  We are very conservative here.
 # Please change the order only after verifying that the preferred
@@ -970,6 +974,7 @@ tqt/Makefile
 w32/Makefile
 fltk/Makefile
 macosx/Makefile
+macosx-swift/Makefile
 doc/Makefile
 Makefile
 qt/org.gnupg.pinentry-qt.desktop
@@ -998,6 +1003,7 @@ AC_MSG_NOTICE([
 	W32 Pinentry .....: $pinentry_w32
 	FLTK Pinentry ....: $pinentry_fltk
 	Mac OS X Pinentry : $pinentry_macosx
+	Mac OS X Swift ...: $pinentry_macosx_swift
 
 	Fallback to Curses: $fallback_curses
 	Emacs integration : $inside_emacs

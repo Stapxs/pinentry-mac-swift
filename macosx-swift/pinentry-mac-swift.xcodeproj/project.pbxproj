@@ -1,0 +1,479 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A10B01000000000000000001 /* PinentryMacSwiftRuntime.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10B00100000000000000001 /* PinentryMacSwiftRuntime.swift */; };
+		A10B01000000000000000002 /* DialogModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10B00100000000000000002 /* DialogModel.swift */; };
+		A10B01000000000000000003 /* DialogViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10B00100000000000000003 /* DialogViewModel.swift */; };
+		A10B01000000000000000004 /* PrototypeWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10B00100000000000000004 /* PrototypeWindowView.swift */; };
+		A10B01000000000000000005 /* Icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = A10B00100000000000000005 /* Icon.icns */; };
+		A10B01000000000000000006 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A10B00100000000000000006 /* Assets.xcassets */; };
+		A10B01000000000000000007 /* PreviewAssets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A10B00100000000000000007 /* PreviewAssets.xcassets */; };
+		A10B01000000000000000008 /* PreviewDialogs.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10B00100000000000000009 /* PreviewDialogs.swift */; };
+		A10B01000000000000000009 /* QualityEstimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10B0010000000000000000A /* QualityEstimator.swift */; };
+		A10B0100000000000000000A /* IconResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10B0010000000000000000B /* IconResolver.swift */; };
+		A10B0100000000000000000B /* TimeoutController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10B0010000000000000000C /* TimeoutController.swift */; };
+		A10B0100000000000000000C /* UserDataParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10B0010000000000000000D /* UserDataParser.swift */; };
+		A10B0100000000000000000D /* CStringDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10B0010000000000000000E /* CStringDecoder.swift */; };
+		A10B0100000000000000000E /* CacheIdentifierPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10B0010000000000000000F /* CacheIdentifierPolicy.swift */; };
+		A10B0100000000000000000F /* PinentryRequestPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10B00100000000000000010 /* PinentryRequestPayload.swift */; };
+		A10B01000000000000000010 /* PinentryRequestMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10B00100000000000000011 /* PinentryRequestMapper.swift */; };
+		A10B01000000000000000011 /* PinentryPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10B00100000000000000012 /* PinentryPresenter.swift */; };
+		A10B01000000000000000012 /* PinentryResultWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10B00100000000000000013 /* PinentryResultWriter.swift */; };
+		A10B01000000000000000013 /* WindowPresentationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10B00100000000000000014 /* WindowPresentationCoordinator.swift */; };
+		A10B02000000000000000001 /* MacOSXSwiftMain.m in Sources */ = {isa = PBXBuildFile; fileRef = A10B02100000000000000001 /* MacOSXSwiftMain.m */; };
+		A10B02000000000000000002 /* MacOSXSwiftAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A10B02100000000000000003 /* MacOSXSwiftAppDelegate.m */; };
+		A10B02000000000000000003 /* PinentryCHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = A10B02100000000000000005 /* PinentryCHandler.m */; };
+		A10B02000000000000000004 /* KeychainSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = A10B02100000000000000008 /* KeychainSupport.m */; };
+		A10B02000000000000000005 /* NSStringExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = A10B0210000000000000000A /* NSStringExtensions.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		A10B000F0000000000000002 /* pinentry-mac-swift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "pinentry-mac-swift.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A10B00100000000000000001 /* PinentryMacSwiftRuntime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinentryMacSwiftRuntime.swift; sourceTree = "<group>"; };
+		A10B00100000000000000002 /* DialogModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DialogModel.swift; sourceTree = "<group>"; };
+		A10B00100000000000000003 /* DialogViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DialogViewModel.swift; sourceTree = "<group>"; };
+		A10B00100000000000000004 /* PrototypeWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrototypeWindowView.swift; sourceTree = "<group>"; };
+		A10B00100000000000000005 /* Icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Icon.icns; sourceTree = "<group>"; };
+		A10B00100000000000000006 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A10B00100000000000000007 /* PreviewAssets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = PreviewAssets.xcassets; sourceTree = "<group>"; };
+		A10B00100000000000000008 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A10B00100000000000000009 /* PreviewDialogs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewDialogs.swift; sourceTree = "<group>"; };
+		A10B0010000000000000000A /* QualityEstimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QualityEstimator.swift; sourceTree = "<group>"; };
+		A10B0010000000000000000B /* IconResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconResolver.swift; sourceTree = "<group>"; };
+		A10B0010000000000000000C /* TimeoutController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeoutController.swift; sourceTree = "<group>"; };
+		A10B0010000000000000000D /* UserDataParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDataParser.swift; sourceTree = "<group>"; };
+		A10B0010000000000000000E /* CStringDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CStringDecoder.swift; sourceTree = "<group>"; };
+		A10B0010000000000000000F /* CacheIdentifierPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheIdentifierPolicy.swift; sourceTree = "<group>"; };
+		A10B00100000000000000010 /* PinentryRequestPayload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinentryRequestPayload.swift; sourceTree = "<group>"; };
+		A10B00100000000000000011 /* PinentryRequestMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinentryRequestMapper.swift; sourceTree = "<group>"; };
+		A10B00100000000000000012 /* PinentryPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinentryPresenter.swift; sourceTree = "<group>"; };
+		A10B00100000000000000013 /* PinentryResultWriter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinentryResultWriter.swift; sourceTree = "<group>"; };
+		A10B00100000000000000014 /* WindowPresentationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowPresentationCoordinator.swift; sourceTree = "<group>"; };
+		A10B02100000000000000001 /* MacOSXSwiftMain.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MacOSXSwiftMain.m; sourceTree = "<group>"; };
+		A10B02100000000000000002 /* MacOSXSwiftAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MacOSXSwiftAppDelegate.h; sourceTree = "<group>"; };
+		A10B02100000000000000003 /* MacOSXSwiftAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MacOSXSwiftAppDelegate.m; sourceTree = "<group>"; };
+		A10B02100000000000000004 /* PinentryCBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PinentryCBridge.h; sourceTree = "<group>"; };
+		A10B02100000000000000005 /* PinentryCHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PinentryCHandler.m; sourceTree = "<group>"; };
+		A10B02100000000000000006 /* PinentryMacSwift-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "PinentryMacSwift-Bridging-Header.h"; sourceTree = "<group>"; };
+		A10B02100000000000000007 /* KeychainSupport.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ../macosx/KeychainSupport.h; sourceTree = "<group>"; };
+		A10B02100000000000000008 /* KeychainSupport.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ../macosx/KeychainSupport.m; sourceTree = "<group>"; };
+		A10B02100000000000000009 /* NSStringExtensions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ../macosx/NSStringExtensions.h; sourceTree = "<group>"; };
+		A10B0210000000000000000A /* NSStringExtensions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ../macosx/NSStringExtensions.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A10B000F0000000000000005 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A10B000F0000000000000003 = {
+			isa = PBXGroup;
+			children = (
+				A10B000F0000000000000004 /* pinentry-mac-swift */,
+				A10B000F0000000000000006 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A10B000F0000000000000004 /* pinentry-mac-swift */ = {
+			isa = PBXGroup;
+			children = (
+				A10B02100000000000000001 /* MacOSXSwiftMain.m */,
+				A10B02100000000000000002 /* MacOSXSwiftAppDelegate.h */,
+				A10B02100000000000000003 /* MacOSXSwiftAppDelegate.m */,
+				A10B00100000000000000001 /* PinentryMacSwiftRuntime.swift */,
+				A10B000F0000000000000017 /* Models */,
+				A10B000F0000000000000018 /* ViewModels */,
+				A10B000F0000000000000019 /* Views */,
+				A10B000F000000000000001A /* PreviewSupport */,
+				A10B000F000000000000001B /* Services */,
+				A10B000F000000000000001C /* Bridge */,
+				A10B02200000000000000001 /* LegacySupport */,
+				A10B00100000000000000005 /* Icon.icns */,
+				A10B00100000000000000006 /* Assets.xcassets */,
+				A10B00100000000000000007 /* PreviewAssets.xcassets */,
+				A10B00100000000000000008 /* Info.plist */,
+				A10B02100000000000000006 /* PinentryMacSwift-Bridging-Header.h */,
+			);
+			path = "";
+			sourceTree = "<group>";
+		};
+		A10B000F0000000000000006 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A10B000F0000000000000002 /* pinentry-mac-swift.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A10B000F0000000000000017 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A10B00100000000000000002 /* DialogModel.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		A10B000F0000000000000018 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				A10B00100000000000000003 /* DialogViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		A10B000F0000000000000019 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				A10B00100000000000000004 /* PrototypeWindowView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		A10B000F000000000000001A /* PreviewSupport */ = {
+			isa = PBXGroup;
+			children = (
+				A10B00100000000000000009 /* PreviewDialogs.swift */,
+			);
+			path = PreviewSupport;
+			sourceTree = "<group>";
+		};
+		A10B000F000000000000001B /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				A10B0010000000000000000A /* QualityEstimator.swift */,
+				A10B0010000000000000000B /* IconResolver.swift */,
+				A10B0010000000000000000C /* TimeoutController.swift */,
+				A10B0010000000000000000D /* UserDataParser.swift */,
+				A10B0010000000000000000E /* CStringDecoder.swift */,
+				A10B0010000000000000000F /* CacheIdentifierPolicy.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		A10B000F000000000000001C /* Bridge */ = {
+			isa = PBXGroup;
+			children = (
+				A10B00100000000000000010 /* PinentryRequestPayload.swift */,
+				A10B00100000000000000011 /* PinentryRequestMapper.swift */,
+				A10B00100000000000000012 /* PinentryPresenter.swift */,
+				A10B00100000000000000013 /* PinentryResultWriter.swift */,
+				A10B00100000000000000014 /* WindowPresentationCoordinator.swift */,
+				A10B02100000000000000004 /* PinentryCBridge.h */,
+				A10B02100000000000000005 /* PinentryCHandler.m */,
+			);
+			path = Bridge;
+			sourceTree = "<group>";
+		};
+		A10B02200000000000000001 /* LegacySupport */ = {
+			isa = PBXGroup;
+			children = (
+				A10B02100000000000000007 /* KeychainSupport.h */,
+				A10B02100000000000000008 /* KeychainSupport.m */,
+				A10B02100000000000000009 /* NSStringExtensions.h */,
+				A10B0210000000000000000A /* NSStringExtensions.m */,
+			);
+			name = LegacySupport;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A10B000F0000000000000001 /* pinentry-mac-swift */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A10B000F0000000000000010 /* Build configuration list for PBXNativeTarget "pinentry-mac-swift" */;
+			buildPhases = (
+				A10B03000000000000000001 /* Build Pinentry Core Libraries */,
+				A10B000F0000000000000007 /* Sources */,
+				A10B000F0000000000000005 /* Frameworks */,
+				A10B000F0000000000000008 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "pinentry-mac-swift";
+			productName = "pinentry-mac-swift";
+			productReference = A10B000F0000000000000002 /* pinentry-mac-swift.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A10B000F0000000000000000 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2600;
+				LastUpgradeCheck = 2600;
+				TargetAttributes = {
+					A10B000F0000000000000001 = {
+						CreatedOnToolsVersion = 26.0;
+					};
+				};
+			};
+			buildConfigurationList = A10B000F0000000000000009 /* Build configuration list for PBXProject "pinentry-mac-swift" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A10B000F0000000000000003;
+			productRefGroup = A10B000F0000000000000006 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A10B000F0000000000000001 /* pinentry-mac-swift */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A10B000F0000000000000008 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10B01000000000000000005 /* Icon.icns in Resources */,
+				A10B01000000000000000006 /* Assets.xcassets in Resources */,
+				A10B01000000000000000007 /* PreviewAssets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		A10B03000000000000000001 /* Build Pinentry Core Libraries */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(PROJECT_DIR)/../pinentry/pinentry.c",
+				"$(PROJECT_DIR)/../pinentry/argparse.c",
+				"$(PROJECT_DIR)/../pinentry/password-cache.c",
+				"$(PROJECT_DIR)/../secmem/secmem.c",
+				"$(PROJECT_DIR)/../secmem/util.c",
+			);
+			name = "Build Pinentry Core Libraries";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(PROJECT_DIR)/../pinentry/libpinentry.a",
+				"$(PROJECT_DIR)/../secmem/libsecmem.a",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "\"${PROJECT_DIR}/Scripts/build-pinentry-core-libs.sh\"";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A10B000F0000000000000007 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10B02000000000000000001 /* MacOSXSwiftMain.m in Sources */,
+				A10B02000000000000000002 /* MacOSXSwiftAppDelegate.m in Sources */,
+				A10B01000000000000000001 /* PinentryMacSwiftRuntime.swift in Sources */,
+				A10B01000000000000000002 /* DialogModel.swift in Sources */,
+				A10B01000000000000000003 /* DialogViewModel.swift in Sources */,
+				A10B01000000000000000004 /* PrototypeWindowView.swift in Sources */,
+				A10B01000000000000000008 /* PreviewDialogs.swift in Sources */,
+				A10B01000000000000000009 /* QualityEstimator.swift in Sources */,
+				A10B0100000000000000000A /* IconResolver.swift in Sources */,
+				A10B0100000000000000000B /* TimeoutController.swift in Sources */,
+				A10B0100000000000000000C /* UserDataParser.swift in Sources */,
+				A10B0100000000000000000D /* CStringDecoder.swift in Sources */,
+				A10B0100000000000000000E /* CacheIdentifierPolicy.swift in Sources */,
+				A10B0100000000000000000F /* PinentryRequestPayload.swift in Sources */,
+				A10B01000000000000000010 /* PinentryRequestMapper.swift in Sources */,
+				A10B01000000000000000011 /* PinentryPresenter.swift in Sources */,
+				A10B01000000000000000012 /* PinentryResultWriter.swift in Sources */,
+				A10B01000000000000000013 /* WindowPresentationCoordinator.swift in Sources */,
+				A10B02000000000000000003 /* PinentryCHandler.m in Sources */,
+				A10B02000000000000000004 /* KeychainSupport.m in Sources */,
+				A10B02000000000000000005 /* NSStringExtensions.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		A10B000F000000000000000A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		A10B000F000000000000000B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		A10B000F000000000000000C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = "";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_APP_SANDBOX = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/..",
+					"$(PROJECT_DIR)/../pinentry",
+					"$(PROJECT_DIR)/../secmem",
+					"$(PROJECT_DIR)/../macosx",
+					"/usr/local/MacGPG2/include",
+					"/opt/homebrew/include",
+				);
+				INFOPLIST_FILE = Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 0.1.0;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = (
+					"$(PROJECT_DIR)/../pinentry/libpinentry.a",
+					"$(PROJECT_DIR)/../secmem/libsecmem.a",
+					"-L/usr/local/MacGPG2/lib",
+					"-L/opt/homebrew/lib",
+					"-lassuan",
+					"-lgpg-error",
+					"-framework",
+					Security,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.gpgtools.pinentry-mac-swift;
+				PRODUCT_MODULE_NAME = pinentry_mac_swift;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "PinentryMacSwift-Bridging-Header.h";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		A10B000F000000000000000D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = "";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_APP_SANDBOX = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/..",
+					"$(PROJECT_DIR)/../pinentry",
+					"$(PROJECT_DIR)/../secmem",
+					"$(PROJECT_DIR)/../macosx",
+					"/usr/local/MacGPG2/include",
+					"/opt/homebrew/include",
+				);
+				INFOPLIST_FILE = Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 0.1.0;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = (
+					"$(PROJECT_DIR)/../pinentry/libpinentry.a",
+					"$(PROJECT_DIR)/../secmem/libsecmem.a",
+					"-L/usr/local/MacGPG2/lib",
+					"-L/opt/homebrew/lib",
+					"-lassuan",
+					"-lgpg-error",
+					"-framework",
+					Security,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.gpgtools.pinentry-mac-swift;
+				PRODUCT_MODULE_NAME = pinentry_mac_swift;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "PinentryMacSwift-Bridging-Header.h";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A10B000F0000000000000009 /* Build configuration list for PBXProject "pinentry-mac-swift" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A10B000F000000000000000A /* Debug */,
+				A10B000F000000000000000B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A10B000F0000000000000010 /* Build configuration list for PBXNativeTarget "pinentry-mac-swift" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A10B000F000000000000000C /* Debug */,
+				A10B000F000000000000000D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A10B000F0000000000000000 /* Project object */;
+}
