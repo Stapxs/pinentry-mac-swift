@@ -1,4 +1,5 @@
 "dialog.title.default" = "Pinentry Mac";
+"dialog.title.touch_id" = "Touch ID Verification";
 "dialog.action.unlock" = "OK";
 "dialog.action.allow" = "Allow";
 "dialog.action.cancel" = "Cancel";

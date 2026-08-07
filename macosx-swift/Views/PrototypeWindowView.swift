@@ -76,7 +76,7 @@ struct DialogCardView: View {
             headerVisual
 
             VStack(alignment: headerStackAlignment, spacing: 8) {
-                Text(viewModel.dialog.title)
+                Text(viewModel.titleText)
                     .font(.title3.weight(.semibold))
                     .foregroundStyle(Color.primary)
                     .multilineTextAlignment(headerTextAlignment)
@@ -106,8 +106,23 @@ struct DialogCardView: View {
             viewModel.showsInlineTouchID,
             let context = viewModel.inlineTouchIDContext
         {
-            EmbeddedTouchIDView(context: context)
-                .frame(width: 34, height: 34)
+            ZStack(alignment: .bottomTrailing) {
+                EmbeddedTouchIDView(context: context)
+                    .padding(7)
+                    .background(
+                        Circle()
+                            .fill(Color.white)
+                    )
+                    .frame(width: 44, height: 44)
+
+                viewModel.resolveIcon()
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 22, height: 22)
+                    .foregroundStyle(iconForegroundStyle)
+                    .offset(x: 2, y: 3)
+            }
+            .frame(width: 50, height: 50)
         } else {
             viewModel.resolveIcon()
                 .resizable()

@@ -1,4 +1,5 @@
 "dialog.title.default" = "密码验证";
+"dialog.title.touch_id" = "Touch ID 验证";
 "dialog.action.unlock" = "确定";
 "dialog.action.allow" = "允许";
 "dialog.action.cancel" = "取消";

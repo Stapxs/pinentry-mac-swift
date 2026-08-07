@@ -79,6 +79,10 @@ final class DialogViewModel: ObservableObject {
         )
     }
 
+    var titleText: String {
+        showsInlineTouchID ? L10n.touchIDDialogTitle : dialog.title
+    }
+
     var primaryActionTitle: String {
         dialog.okText
     }

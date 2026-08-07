@@ -81,6 +81,10 @@ enum L10n {
         tr("dialog.title.default", fallback: "Pinentry Mac")
     }
 
+    static var touchIDDialogTitle: String {
+        tr("dialog.title.touch_id", fallback: "Touch ID Verification")
+    }
+
     static var unlockAction: String {
         tr("dialog.action.unlock", fallback: "OK")
     }
