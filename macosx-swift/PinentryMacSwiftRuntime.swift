@@ -59,6 +59,7 @@ final class CPinentryRequest: NSObject {
     @objc var automaticTouchIDCacheID: String?
     @objc var automaticTouchIDKeychainLabel: String?
     @objc var userData: String?
+    @objc var ownerPID = 0
     @objc var userID = ""
     @objc var name = ""
     @objc var email = ""
@@ -87,6 +88,7 @@ final class CPinentryRequest: NSObject {
             automaticTouchIDCacheID: automaticTouchIDCacheID,
             automaticTouchIDKeychainLabel: automaticTouchIDKeychainLabel,
             userData: userData,
+            ownerPID: ownerPID > 0 ? ownerPID : nil,
             identity: PinentryIdentityContext(
                 userID: userID,
                 name: name,

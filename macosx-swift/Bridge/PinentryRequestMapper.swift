@@ -44,6 +44,8 @@ struct PinentryRequestMapper {
         let iconSource: DialogModel.IconSource
         if let iconPath = parsedUserData.iconPath, !iconPath.isEmpty {
             iconSource = .filePath(iconPath)
+        } else if let ownerPID = payload.ownerPID, ownerPID > 1 {
+            iconSource = .ownerProcessID(ownerPID)
         } else {
             iconSource = .appIcon
         }

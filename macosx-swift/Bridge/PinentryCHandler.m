@@ -1,4 +1,5 @@
 #import <Foundation/Foundation.h>
+#import <libproc.h>
 #import "pinentry.h"
 #import "KeychainSupport.h"
 #import "NSStringExtensions.h"
@@ -13,6 +14,20 @@ int PinentryMacSwiftEvaluateQuality(void *pinentryPointer, const char *passphras
     }
 
     return pinentry_inq_quality((pinentry_t)pinentryPointer, passphrase, length);
+}
+
+int PinentryMacSwiftCopyParentProcessID(int processID) {
+    if (processID <= 1) {
+        return 0;
+    }
+
+    struct proc_bsdinfo processInfo;
+    int bytesRead = proc_pidinfo(processID, PROC_PIDTBSDINFO, 0, &processInfo, PROC_PIDTBSDINFO_SIZE);
+    if (bytesRead != PROC_PIDTBSDINFO_SIZE) {
+        return 0;
+    }
+
+    return processInfo.pbi_ppid;
 }
 
 static NSString *StringFromPinentryCString(char *string) {
@@ -120,6 +135,7 @@ static CPinentryRequest *MakeRequest(pinentry_t pe) {
     request.prefersSaveInKeychain = [[NSUserDefaults standardUserDefaults] boolForKey:@"UseKeychain"];
     request.prefersShowTyping = NO;
     request.userData = StringFromEnvironment("PINENTRY_USER_DATA");
+    request.ownerPID = pe->owner_pid > 0 ? (NSInteger)pe->owner_pid : 0;
     request.pinentryPointer = pe;
 
     FillIdentityFromDescription(request, description);

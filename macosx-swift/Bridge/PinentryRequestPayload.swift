@@ -20,6 +20,7 @@ struct PinentryRequestPayload: Equatable {
     let automaticTouchIDCacheID: String?
     let automaticTouchIDKeychainLabel: String?
     let userData: String?
+    let ownerPID: Int?
     let identity: PinentryIdentityContext
 }
 

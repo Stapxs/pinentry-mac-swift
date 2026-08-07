@@ -8,6 +8,7 @@ struct DialogModel: Equatable {
 
     enum IconSource: Equatable {
         case appIcon
+        case ownerProcessID(Int)
         case systemSymbol(String)
         case bundledImage(String)
         case filePath(String)
