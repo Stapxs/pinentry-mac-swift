@@ -44,6 +44,7 @@ linked_dependency_for_basename() {
 find_library() {
   local basename="$1"
   local linked_dependency="${2:-}"
+  local glob_pattern="${3:-}"
 
   if [[ -n "$linked_dependency" && -r "$linked_dependency" ]]; then
     printf '%s\n' "$linked_dependency"
@@ -55,6 +56,30 @@ find_library() {
     if [[ -n "$candidate_dir" && -r "$candidate_dir/$basename" ]]; then
       printf '%s\n' "$candidate_dir/$basename"
       return 0
+    fi
+  done
+
+  if [[ -n "$glob_pattern" ]]; then
+    local candidate
+    for candidate_dir in "${candidate_dirs[@]}"; do
+      if [[ -z "$candidate_dir" || ! -d "$candidate_dir" ]]; then
+        continue
+      fi
+
+      for candidate in "$candidate_dir"/$glob_pattern; do
+        if [[ -r "$candidate" ]]; then
+          printf '%s\n' "$candidate"
+          return 0
+        fi
+      done
+    done
+  fi
+
+  printf 'Searched library directories:\n' >&2
+  local candidate_dir
+  for candidate_dir in "${candidate_dirs[@]}"; do
+    if [[ -n "$candidate_dir" ]]; then
+      printf '  %s\n' "$candidate_dir" >&2
     fi
   done
 
@@ -125,15 +150,15 @@ sign_binary() {
 assuan_linked="$(linked_dependency_for_basename "$executable" libassuan.0.dylib || true)"
 gpg_error_linked="$(linked_dependency_for_basename "$executable" libgpg-error.0.dylib || true)"
 
-assuan_source="$(find_library libassuan.0.dylib "$assuan_linked")"
-gpg_error_source="$(find_library libgpg-error.0.dylib "$gpg_error_linked")"
+assuan_source="$(find_library libassuan.0.dylib "$assuan_linked" 'libassuan*.dylib')"
+gpg_error_source="$(find_library libgpg-error.0.dylib "$gpg_error_linked" 'libgpg-error*.dylib')"
 
 assuan_destination="$(copy_library "$assuan_source" libassuan.0.dylib)"
 gpg_error_destination="$(copy_library "$gpg_error_source" libgpg-error.0.dylib)"
 
 intl_linked="$(linked_dependency_for_basename "$gpg_error_destination" libintl.8.dylib || true)"
 if [[ -n "$intl_linked" ]]; then
-  intl_source="$(find_library libintl.8.dylib "$intl_linked")"
+  intl_source="$(find_library libintl.8.dylib "$intl_linked" 'libintl*.dylib')"
   intl_destination="$(copy_library "$intl_source" libintl.8.dylib)"
   rewrite_dependency "$executable" libintl.8.dylib
   rewrite_dependency "$assuan_destination" libintl.8.dylib

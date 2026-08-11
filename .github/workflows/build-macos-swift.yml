@@ -58,6 +58,14 @@ jobs:
             echo "PINENTRY_MAC_SWIFT_GETTEXT_PREFIX=$(brew --prefix gettext)"
           } >> "$GITHUB_ENV"
 
+      - name: Show Homebrew dependency libraries
+        run: |
+          for formula in libassuan libgpg-error gettext; do
+            prefix="$(brew --prefix "$formula")"
+            echo "$formula: $prefix"
+            find "$prefix/lib" -maxdepth 1 -name "*.dylib" -print
+          done
+
       - name: Build pinentry-mac-swift
         run: |
           xcodebuild \
