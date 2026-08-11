@@ -191,6 +191,7 @@
 				A10B000F0000000000000007 /* Sources */,
 				A10B000F0000000000000005 /* Frameworks */,
 				A10B000F0000000000000008 /* Resources */,
+				A10B03000000000000000002 /* Bundle Pinentry Dynamic Libraries */,
 			);
 			buildRules = (
 			);
@@ -274,6 +275,27 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
 			shellScript = "\"${PROJECT_DIR}/Scripts/build-pinentry-core-libs.sh\"";
+		};
+		A10B03000000000000000002 /* Bundle Pinentry Dynamic Libraries */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Bundle Pinentry Dynamic Libraries";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(TARGET_BUILD_DIR)/$(WRAPPER_NAME)/Contents/Frameworks/libassuan.0.dylib",
+				"$(TARGET_BUILD_DIR)/$(WRAPPER_NAME)/Contents/Frameworks/libgpg-error.0.dylib",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "\"${PROJECT_DIR}/Scripts/bundle-pinentry-dylibs.sh\"";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -364,7 +386,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = "";
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
-				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_ALLOWED = YES;
 				CODE_SIGNING_REQUIRED = NO;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -396,8 +418,6 @@
 					"-lgpg-error",
 					"-framework",
 					LocalAuthentication,
-					"-framework",
-					LocalAuthenticationEmbeddedUI,
 					"-framework",
 					Security,
 				);
@@ -418,7 +438,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = "";
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
-				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_ALLOWED = YES;
 				CODE_SIGNING_REQUIRED = NO;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -440,7 +460,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.0.0;
-				ONLY_ACTIVE_ARCH = YES;
+				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = (
 					"$(PROJECT_DIR)/../pinentry/libpinentry.a",
 					"$(PROJECT_DIR)/../secmem/libsecmem.a",
@@ -450,8 +470,6 @@
 					"-lgpg-error",
 					"-framework",
 					LocalAuthentication,
-					"-framework",
-					LocalAuthenticationEmbeddedUI,
 					"-framework",
 					Security,
 				);

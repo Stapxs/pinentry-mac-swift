@@ -1,0 +1,69 @@
+name: Build macOS Swift App
+
+on:
+  push:
+    paths:
+      - ".github/workflows/build-macos-swift.yml"
+      - "macosx-swift/**"
+      - "macosx/**"
+      - "pinentry/**"
+      - "secmem/**"
+      - "README.md"
+  pull_request:
+    paths:
+      - ".github/workflows/build-macos-swift.yml"
+      - "macosx-swift/**"
+      - "macosx/**"
+      - "pinentry/**"
+      - "secmem/**"
+      - "README.md"
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build on macOS 15 / Xcode 16.4
+    runs-on: macos-15-intel
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_16.4.app/Contents/Developer
+      DERIVED_DATA_PATH: ${{ runner.temp }}/pinentry-mac-modern-build
+      APP_PATH: ${{ runner.temp }}/pinentry-mac-modern-build/Build/Products/Release/pinentry-mac-swift.app
+      ZIP_PATH: ${{ runner.temp }}/pinentry-mac-swift-macos15-xcode16.4.zip
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Show selected Xcode
+        run: |
+          xcodebuild -version
+          xcrun --show-sdk-path
+
+      - name: Install build dependencies
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: "1"
+        run: |
+          brew install libassuan libgpg-error
+
+      - name: Build pinentry-mac-swift
+        run: |
+          xcodebuild \
+            -project macosx-swift/pinentry-mac-swift.xcodeproj \
+            -scheme pinentry-mac-swift \
+            -configuration Release \
+            -destination "platform=macOS,arch=x86_64" \
+            -derivedDataPath "$DERIVED_DATA_PATH" \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Package app bundle
+        run: |
+          ditto -c -k --sequesterRsrc --keepParent \
+            "$APP_PATH" \
+            "$ZIP_PATH"
+
+      - name: Upload app artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinentry-mac-swift-macos15-xcode16.4
+          path: ${{ env.ZIP_PATH }}
+          if-no-files-found: error

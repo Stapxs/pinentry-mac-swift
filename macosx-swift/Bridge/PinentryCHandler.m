@@ -1,4 +1,7 @@
 #import <Foundation/Foundation.h>
+#import <AppKit/AppKit.h>
+#import <LocalAuthentication/LocalAuthentication.h>
+#import <dlfcn.h>
 #import <libproc.h>
 #import "pinentry.h"
 #import "KeychainSupport.h"
@@ -28,6 +31,116 @@ int PinentryMacSwiftCopyParentProcessID(int processID) {
     }
 
     return processInfo.pbi_ppid;
+}
+
+static BOOL PinentryMacSwiftIsAtLeastMacOS(NSInteger majorVersion, NSInteger minorVersion) {
+    NSOperatingSystemVersion version = {
+        .majorVersion = majorVersion,
+        .minorVersion = minorVersion,
+        .patchVersion = 0,
+    };
+    return [[NSProcessInfo processInfo] isOperatingSystemAtLeastVersion:version];
+}
+
+static void PinentryMacSwiftPinSubview(NSView *subview, NSView *container) {
+    [container addSubview:subview];
+    [NSLayoutConstraint activateConstraints:@[
+        [subview.leadingAnchor constraintEqualToAnchor:container.leadingAnchor],
+        [subview.trailingAnchor constraintEqualToAnchor:container.trailingAnchor],
+        [subview.topAnchor constraintEqualToAnchor:container.topAnchor],
+        [subview.bottomAnchor constraintEqualToAnchor:container.bottomAnchor],
+    ]];
+}
+
+NSView *PinentryMacSwiftCreateGlassContainer(NSView *hostingView, NSRect frame) {
+    if (PinentryMacSwiftIsAtLeastMacOS(26, 0)) {
+        Class glassEffectViewClass = NSClassFromString(@"NSGlassEffectView");
+        if (glassEffectViewClass != Nil) {
+            id glassView = [[glassEffectViewClass alloc] initWithFrame:frame];
+            if ([glassView isKindOfClass:[NSView class]]) {
+                if ([glassView respondsToSelector:@selector(setContentView:)]) {
+                    [glassView setValue:hostingView forKey:@"contentView"];
+                } else {
+                    PinentryMacSwiftPinSubview(hostingView, glassView);
+                }
+
+                if ([glassView respondsToSelector:@selector(setCornerRadius:)]) {
+                    [glassView setValue:@26.0 forKey:@"cornerRadius"];
+                }
+                if ([glassView respondsToSelector:@selector(setStyle:)]) {
+                    [glassView setValue:@0 forKey:@"style"];
+                }
+                if ([glassView respondsToSelector:@selector(setTintColor:)]) {
+                    [glassView setValue:[NSColor.whiteColor colorWithAlphaComponent:0.12] forKey:@"tintColor"];
+                }
+                if (
+                    PinentryMacSwiftIsAtLeastMacOS(27, 0) &&
+                    [glassView respondsToSelector:@selector(setEffectIsInteractive:)]
+                ) {
+                    [glassView setValue:@YES forKey:@"effectIsInteractive"];
+                }
+
+                return glassView;
+            }
+        }
+    }
+
+    NSVisualEffectView *effectView = [[NSVisualEffectView alloc] initWithFrame:frame];
+    effectView.material = NSVisualEffectMaterialHUDWindow;
+    effectView.blendingMode = NSVisualEffectBlendingModeBehindWindow;
+    effectView.state = NSVisualEffectStateActive;
+    effectView.wantsLayer = YES;
+    effectView.layer.cornerRadius = 26;
+    effectView.layer.masksToBounds = YES;
+    effectView.layer.borderWidth = 1;
+    effectView.layer.borderColor = [NSColor.whiteColor colorWithAlphaComponent:0.16].CGColor;
+
+    PinentryMacSwiftPinSubview(hostingView, effectView);
+    return effectView;
+}
+
+static Class PinentryMacSwiftAuthenticationViewClass(void) {
+    static dispatch_once_t onceToken;
+    static Class authenticationViewClass = Nil;
+
+    dispatch_once(&onceToken, ^{
+        dlopen(
+            "/System/Library/Frameworks/LocalAuthenticationEmbeddedUI.framework/Versions/A/LocalAuthenticationEmbeddedUI",
+            RTLD_LAZY | RTLD_LOCAL
+        );
+        authenticationViewClass = NSClassFromString(@"LAAuthenticationView");
+    });
+
+    return authenticationViewClass;
+}
+
+BOOL PinentryMacSwiftCanCreateAuthenticationView(void) {
+    Class authenticationViewClass = PinentryMacSwiftAuthenticationViewClass();
+    return authenticationViewClass != Nil &&
+        [authenticationViewClass instancesRespondToSelector:@selector(initWithContext:controlSize:)];
+}
+
+NSView *PinentryMacSwiftCreateAuthenticationView(LAContext *context, NSControlSize controlSize) {
+    if (!context) {
+        return nil;
+    }
+
+    Class authenticationViewClass = PinentryMacSwiftAuthenticationViewClass();
+    SEL initializer = @selector(initWithContext:controlSize:);
+    if (authenticationViewClass == Nil ||
+        ![authenticationViewClass instancesRespondToSelector:initializer]) {
+        return nil;
+    }
+
+    id allocatedView = [authenticationViewClass alloc];
+    typedef id (*InitializerIMP)(id, SEL, LAContext *, NSControlSize);
+    InitializerIMP initializerIMP = (InitializerIMP)[allocatedView methodForSelector:initializer];
+    id authenticationView = initializerIMP(allocatedView, initializer, context, controlSize);
+    if (![authenticationView isKindOfClass:[NSView class]]) {
+        return nil;
+    }
+
+    return authenticationView;
 }
 
 static NSString *StringFromPinentryCString(char *string) {

@@ -240,8 +240,10 @@ final class DialogViewModel: ObservableObject {
 
         touchIDSession += 1
         let session = touchIDSession
-        inlineTouchIDContext = context
-        showsInlineTouchID = true
+        if PinentryMacSwiftCanCreateAuthenticationView() {
+            inlineTouchIDContext = context
+            showsInlineTouchID = true
+        }
 
         automaticTouchIDTask = Task { [weak self] in
             let result = await Self.performAutomaticTouchID(

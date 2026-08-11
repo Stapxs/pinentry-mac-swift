@@ -232,36 +232,7 @@ final class PinentryMacSwiftRuntime: NSObject {
 
     @MainActor
     private static func makeGlassContainer(hostingView: NSView, frame: NSRect) -> NSView {
-        if #available(macOS 26.0, *) {
-            let glassView = NSGlassEffectView(frame: frame)
-            glassView.contentView = hostingView
-            glassView.cornerRadius = 26
-            glassView.style = .regular
-            glassView.tintColor = NSColor.white.withAlphaComponent(0.12)
-            if #available(macOS 27.0, *) {
-                glassView.effectIsInteractive = true
-            }
-            return glassView
-        }
-
-        let effectView = NSVisualEffectView(frame: frame)
-        effectView.material = .hudWindow
-        effectView.blendingMode = .behindWindow
-        effectView.state = .active
-        effectView.wantsLayer = true
-        effectView.layer?.cornerRadius = 26
-        effectView.layer?.masksToBounds = true
-        effectView.layer?.borderWidth = 1
-        effectView.layer?.borderColor = NSColor.white.withAlphaComponent(0.16).cgColor
-
-        effectView.addSubview(hostingView)
-        NSLayoutConstraint.activate([
-            hostingView.leadingAnchor.constraint(equalTo: effectView.leadingAnchor),
-            hostingView.trailingAnchor.constraint(equalTo: effectView.trailingAnchor),
-            hostingView.topAnchor.constraint(equalTo: effectView.topAnchor),
-            hostingView.bottomAnchor.constraint(equalTo: effectView.bottomAnchor)
-        ])
-        return effectView
+        PinentryMacSwiftCreateGlassContainer(hostingView, frame)
     }
 
     @MainActor

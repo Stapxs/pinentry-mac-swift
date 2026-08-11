@@ -7,8 +7,9 @@ top_srcdir="$(cd "$frontend_dir/.." && pwd)"
 build_dir="$frontend_dir/build/core-libs"
 config_dir="$build_dir/config"
 objects_dir="$build_dir/objects"
+libraries_dir="$build_dir/libraries"
 
-mkdir -p "$config_dir" "$objects_dir/secmem" "$objects_dir/pinentry"
+mkdir -p "$config_dir" "$objects_dir" "$libraries_dir"
 
 cat > "$config_dir/config.h" <<'CONFIG_H'
 #ifndef PINENTRY_MAC_SWIFT_GENERATED_CONFIG_H
@@ -32,11 +33,7 @@ cc="${CC:-$(xcrun -find clang)}"
 ar="${AR:-$(xcrun -find ar)}"
 ranlib="${RANLIB:-$(xcrun -find ranlib)}"
 sdkroot="${SDKROOT:-$(xcrun --sdk macosx --show-sdk-path)}"
-arch="${ARCHS:-$(uname -m)}"
-
-if [[ "$arch" == *" "* ]]; then
-  arch="${NATIVE_ARCH_ACTUAL:-$(uname -m)}"
-fi
+read -r -a archs <<< "${ARCHS:-$(uname -m)}"
 
 assuan_prefix="${PINENTRY_MAC_SWIFT_ASSUAN_PREFIX:-}"
 if [[ -z "$assuan_prefix" ]]; then
@@ -65,7 +62,6 @@ if [[ -z "$gpg_error_prefix" ]]; then
 fi
 
 common_flags=(
-  -arch "$arch"
   -isysroot "$sdkroot"
   -mmacosx-version-min=13.0
   -DHAVE_CONFIG_H=1
@@ -81,28 +77,58 @@ common_flags=(
 )
 
 compile() {
-  local source="$1"
-  local object="$2"
-  "$cc" "${common_flags[@]}" -c "$source" -o "$object"
+  local arch="$1"
+  local source="$2"
+  local object="$3"
+  "$cc" -arch "$arch" "${common_flags[@]}" -c "$source" -o "$object"
 }
 
-compile "$top_srcdir/secmem/secmem.c" "$objects_dir/secmem/secmem.o"
-compile "$top_srcdir/secmem/util.c" "$objects_dir/secmem/util.o"
-"$ar" cr "$top_srcdir/secmem/libsecmem.a" \
-  "$objects_dir/secmem/secmem.o" \
-  "$objects_dir/secmem/util.o"
-"$ranlib" "$top_srcdir/secmem/libsecmem.a"
+build_for_arch() {
+  local arch="$1"
+  local arch_objects_dir="$objects_dir/$arch"
 
-compile "$top_srcdir/pinentry/pinentry.c" "$objects_dir/pinentry/pinentry.o"
-compile "$top_srcdir/pinentry/argparse.c" "$objects_dir/pinentry/argparse.o"
-compile "$top_srcdir/pinentry/password-cache.c" "$objects_dir/pinentry/password-cache.o"
-"$ar" cr "$top_srcdir/pinentry/libpinentry.a" \
-  "$objects_dir/pinentry/pinentry.o" \
-  "$objects_dir/pinentry/argparse.o" \
-  "$objects_dir/pinentry/password-cache.o"
+  mkdir -p "$arch_objects_dir/secmem" "$arch_objects_dir/pinentry"
+
+  compile "$arch" "$top_srcdir/secmem/secmem.c" "$arch_objects_dir/secmem/secmem.o"
+  compile "$arch" "$top_srcdir/secmem/util.c" "$arch_objects_dir/secmem/util.o"
+  "$ar" cr "$libraries_dir/libsecmem-$arch.a" \
+    "$arch_objects_dir/secmem/secmem.o" \
+    "$arch_objects_dir/secmem/util.o"
+  "$ranlib" "$libraries_dir/libsecmem-$arch.a"
+
+  compile "$arch" "$top_srcdir/pinentry/pinentry.c" "$arch_objects_dir/pinentry/pinentry.o"
+  compile "$arch" "$top_srcdir/pinentry/argparse.c" "$arch_objects_dir/pinentry/argparse.o"
+  compile "$arch" "$top_srcdir/pinentry/password-cache.c" "$arch_objects_dir/pinentry/password-cache.o"
+  "$ar" cr "$libraries_dir/libpinentry-$arch.a" \
+    "$arch_objects_dir/pinentry/pinentry.o" \
+    "$arch_objects_dir/pinentry/argparse.o" \
+    "$arch_objects_dir/pinentry/password-cache.o"
+  "$ranlib" "$libraries_dir/libpinentry-$arch.a"
+}
+
+for arch in "${archs[@]}"; do
+  build_for_arch "$arch"
+done
+
+if [[ "${#archs[@]}" -gt 1 ]]; then
+  secmem_libraries=()
+  pinentry_libraries=()
+  for arch in "${archs[@]}"; do
+    secmem_libraries+=("$libraries_dir/libsecmem-$arch.a")
+    pinentry_libraries+=("$libraries_dir/libpinentry-$arch.a")
+  done
+
+  lipo -create "${secmem_libraries[@]}" -output "$top_srcdir/secmem/libsecmem.a"
+  lipo -create "${pinentry_libraries[@]}" -output "$top_srcdir/pinentry/libpinentry.a"
+else
+  cp "$libraries_dir/libsecmem-${archs[0]}.a" "$top_srcdir/secmem/libsecmem.a"
+  cp "$libraries_dir/libpinentry-${archs[0]}.a" "$top_srcdir/pinentry/libpinentry.a"
+fi
+
+"$ranlib" "$top_srcdir/secmem/libsecmem.a"
 "$ranlib" "$top_srcdir/pinentry/libpinentry.a"
 
 printf 'Built %s and %s for %s.\n' \
   "$top_srcdir/secmem/libsecmem.a" \
   "$top_srcdir/pinentry/libpinentry.a" \
-  "$arch"
+  "${archs[*]}"

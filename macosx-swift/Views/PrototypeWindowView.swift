@@ -1,6 +1,5 @@
 import AppKit
 import LocalAuthentication
-import LocalAuthenticationEmbeddedUI
 import SwiftUI
 
 @MainActor
@@ -307,27 +306,15 @@ struct DialogCardView: View {
     }
 
     private var headerStackAlignment: HorizontalAlignment {
-        if #available(macOS 26.0, *) {
-            return .leading
-        }
-
-        return .center
+        .leading
     }
 
     private var headerFrameAlignment: Alignment {
-        if #available(macOS 26.0, *) {
-            return .leading
-        }
-
-        return .center
+        .leading
     }
 
     private var headerTextAlignment: TextAlignment {
-        if #available(macOS 26.0, *) {
-            return .leading
-        }
-
-        return .center
+        .leading
     }
 
     private func qualityColor(for assessment: PassphraseQualityAssessment) -> Color {
@@ -345,39 +332,27 @@ struct DialogCardView: View {
 }
 
 private struct PrimaryActionButtonModifier: ViewModifier {
-    @ViewBuilder
     func body(content: Content) -> some View {
-        if #available(macOS 26.0, *) {
-            content
-                .buttonStyle(.glassProminent)
-        } else {
-            content
-                .buttonStyle(.borderedProminent)
-        }
+        content
+            .buttonStyle(.borderedProminent)
     }
 }
 
 private struct SecondaryActionButtonModifier: ViewModifier {
-    @ViewBuilder
     func body(content: Content) -> some View {
-        if #available(macOS 26.0, *) {
-            content
-                .buttonStyle(.glass)
-        } else {
-            content
-                .buttonStyle(.bordered)
-        }
+        content
+            .buttonStyle(.bordered)
     }
 }
 
 private struct EmbeddedTouchIDView: NSViewRepresentable {
     let context: LAContext
 
-    func makeNSView(context _: Context) -> LAAuthenticationView {
-        LAAuthenticationView(context: self.context, controlSize: .small)
+    func makeNSView(context _: Context) -> NSView {
+        PinentryMacSwiftCreateAuthenticationView(self.context, .small) ?? NSView(frame: .zero)
     }
 
-    func updateNSView(_ nsView: LAAuthenticationView, context _: Context) {
+    func updateNSView(_ nsView: NSView, context _: Context) {
         _ = nsView
     }
 }
