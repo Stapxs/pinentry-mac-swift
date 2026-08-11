@@ -306,15 +306,27 @@ struct DialogCardView: View {
     }
 
     private var headerStackAlignment: HorizontalAlignment {
-        .leading
+        if #available(macOS 26.0, *) {
+            return .leading
+        }
+
+        return .center
     }
 
     private var headerFrameAlignment: Alignment {
-        .leading
+        if #available(macOS 26.0, *) {
+            return .leading
+        }
+
+        return .center
     }
 
     private var headerTextAlignment: TextAlignment {
-        .leading
+        if #available(macOS 26.0, *) {
+            return .leading
+        }
+
+        return .center
     }
 
     private func qualityColor(for assessment: PassphraseQualityAssessment) -> Color {

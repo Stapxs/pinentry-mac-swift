@@ -26,14 +26,18 @@ jobs:
   build:
     name: Build on macOS 26 / arm64
     runs-on: macos-26
-    env:
-      DERIVED_DATA_PATH: ${{ runner.temp }}/pinentry-mac-modern-build
-      APP_PATH: ${{ runner.temp }}/pinentry-mac-modern-build/Build/Products/Release/pinentry-mac-swift.app
-      ZIP_PATH: ${{ runner.temp }}/pinentry-mac-swift-macos26-arm64.zip
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+
+      - name: Export build paths
+        run: |
+          {
+            echo "DERIVED_DATA_PATH=$RUNNER_TEMP/pinentry-mac-modern-build"
+            echo "APP_PATH=$RUNNER_TEMP/pinentry-mac-modern-build/Build/Products/Release/pinentry-mac-swift.app"
+            echo "ZIP_PATH=$GITHUB_WORKSPACE/artifacts/pinentry-mac-swift-macos26-arm64.zip"
+          } >> "$GITHUB_ENV"
 
       - name: Show selected Xcode
         run: |
@@ -90,6 +94,7 @@ jobs:
 
       - name: Package app bundle
         run: |
+          mkdir -p "$(dirname "$ZIP_PATH")"
           ditto -c -k --sequesterRsrc --keepParent \
             "$APP_PATH" \
             "$ZIP_PATH"
@@ -98,5 +103,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: pinentry-mac-swift-macos26-arm64
-          path: ${{ env.ZIP_PATH }}
+          path: artifacts/pinentry-mac-swift-macos26-arm64.zip
           if-no-files-found: error
