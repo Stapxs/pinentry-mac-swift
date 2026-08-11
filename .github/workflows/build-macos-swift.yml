@@ -1,5 +1,8 @@
 name: Build macOS Swift App
 
+permissions:
+  contents: read
+
 on:
   push:
     paths:
@@ -21,13 +24,12 @@ on:
 
 jobs:
   build:
-    name: Build on macOS 15 / Xcode 16.4
-    runs-on: macos-15-intel
+    name: Build on macOS 26 / arm64
+    runs-on: macos-26
     env:
-      DEVELOPER_DIR: /Applications/Xcode_16.4.app/Contents/Developer
       DERIVED_DATA_PATH: ${{ runner.temp }}/pinentry-mac-modern-build
       APP_PATH: ${{ runner.temp }}/pinentry-mac-modern-build/Build/Products/Release/pinentry-mac-swift.app
-      ZIP_PATH: ${{ runner.temp }}/pinentry-mac-swift-macos15-xcode16.4.zip
+      ZIP_PATH: ${{ runner.temp }}/pinentry-mac-swift-macos26-arm64.zip
 
     steps:
       - name: Check out repository
@@ -42,7 +44,15 @@ jobs:
         env:
           HOMEBREW_NO_AUTO_UPDATE: "1"
         run: |
-          brew install libassuan libgpg-error
+          brew install libassuan libgpg-error gettext
+
+      - name: Export Homebrew dependency prefixes
+        run: |
+          {
+            echo "PINENTRY_MAC_SWIFT_ASSUAN_PREFIX=$(brew --prefix libassuan)"
+            echo "PINENTRY_MAC_SWIFT_GPG_ERROR_PREFIX=$(brew --prefix libgpg-error)"
+            echo "PINENTRY_MAC_SWIFT_GETTEXT_PREFIX=$(brew --prefix gettext)"
+          } >> "$GITHUB_ENV"
 
       - name: Build pinentry-mac-swift
         run: |
@@ -50,10 +60,33 @@ jobs:
             -project macosx-swift/pinentry-mac-swift.xcodeproj \
             -scheme pinentry-mac-swift \
             -configuration Release \
-            -destination "platform=macOS,arch=x86_64" \
+            -destination "platform=macOS,arch=arm64" \
             -derivedDataPath "$DERIVED_DATA_PATH" \
+            ARCHS=arm64 \
+            ONLY_ACTIVE_ARCH=YES \
             CODE_SIGNING_ALLOWED=NO \
             build
+
+      - name: Verify bundled dynamic libraries
+        run: |
+          assert_arm64_only() {
+            test "$(lipo -archs "$1")" = "arm64"
+          }
+
+          test -x "$APP_PATH/Contents/MacOS/pinentry-mac-swift"
+          test -f "$APP_PATH/Contents/Frameworks/libassuan.0.dylib"
+          test -f "$APP_PATH/Contents/Frameworks/libgpg-error.0.dylib"
+          assert_arm64_only "$APP_PATH/Contents/MacOS/pinentry-mac-swift"
+          assert_arm64_only "$APP_PATH/Contents/Frameworks/libassuan.0.dylib"
+          assert_arm64_only "$APP_PATH/Contents/Frameworks/libgpg-error.0.dylib"
+          otool -L "$APP_PATH/Contents/MacOS/pinentry-mac-swift"
+          otool -L "$APP_PATH/Contents/Frameworks/libassuan.0.dylib"
+          otool -L "$APP_PATH/Contents/Frameworks/libgpg-error.0.dylib"
+          if otool -L "$APP_PATH/Contents/Frameworks/libgpg-error.0.dylib" | grep -q "libintl.8.dylib"; then
+            test -f "$APP_PATH/Contents/Frameworks/libintl.8.dylib"
+            assert_arm64_only "$APP_PATH/Contents/Frameworks/libintl.8.dylib"
+            otool -L "$APP_PATH/Contents/Frameworks/libintl.8.dylib"
+          fi
 
       - name: Package app bundle
         run: |
@@ -64,6 +97,6 @@ jobs:
       - name: Upload app artifact
         uses: actions/upload-artifact@v4
         with:
-          name: pinentry-mac-swift-macos15-xcode16.4
+          name: pinentry-mac-swift-macos26-arm64
           path: ${{ env.ZIP_PATH }}
           if-no-files-found: error

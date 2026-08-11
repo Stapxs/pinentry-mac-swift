@@ -15,12 +15,19 @@ mkdir -p "$frameworks_dir"
 candidate_dirs=(
   "${PINENTRY_MAC_SWIFT_ASSUAN_PREFIX:-}/lib"
   "${PINENTRY_MAC_SWIFT_GPG_ERROR_PREFIX:-}/lib"
+  "${PINENTRY_MAC_SWIFT_GETTEXT_PREFIX:-}/lib"
   /usr/local/MacGPG2/lib
+  /usr/local/lib
   /opt/homebrew/lib
+  /usr/local/opt/libassuan/lib
+  /usr/local/opt/libgpg-error/lib
+  /usr/local/opt/gettext/lib
   /opt/homebrew/opt/libassuan/lib
   /opt/homebrew/opt/libgpg-error/lib
   /opt/homebrew/opt/gettext/lib
 )
+
+read -r -a requested_archs <<< "${ARCHS:-}"
 
 linked_dependency_for_basename() {
   local binary="$1"
@@ -55,6 +62,33 @@ find_library() {
   exit 1
 }
 
+thin_to_requested_archs() {
+  local binary="$1"
+
+  if [[ "${#requested_archs[@]}" -ne 1 ]]; then
+    return 0
+  fi
+
+  local requested_arch="${requested_archs[0]}"
+  local archs
+  if ! archs="$(lipo -archs "$binary" 2>/dev/null)"; then
+    return 0
+  fi
+
+  if [[ "$archs" == "$requested_arch" ]]; then
+    return 0
+  fi
+
+  if [[ " $archs " != *" $requested_arch "* ]]; then
+    printf 'error: %s does not contain requested architecture %s. Found: %s\n' "$binary" "$requested_arch" "$archs" >&2
+    exit 1
+  fi
+
+  local thinned_binary="${binary}.thin"
+  lipo "$binary" -thin "$requested_arch" -output "$thinned_binary"
+  mv "$thinned_binary" "$binary"
+}
+
 copy_library() {
   local source="$1"
   local basename="$2"
@@ -62,6 +96,7 @@ copy_library() {
 
   cp -f "$source" "$destination"
   chmod u+w "$destination"
+  thin_to_requested_archs "$destination"
   install_name_tool -id "@rpath/$basename" "$destination"
   printf '%s\n' "$destination"
 }

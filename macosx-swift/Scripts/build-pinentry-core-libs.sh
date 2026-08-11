@@ -39,8 +39,14 @@ assuan_prefix="${PINENTRY_MAC_SWIFT_ASSUAN_PREFIX:-}"
 if [[ -z "$assuan_prefix" ]]; then
   if [[ -f /usr/local/MacGPG2/include/assuan.h ]]; then
     assuan_prefix="/usr/local/MacGPG2"
+  elif [[ -f /usr/local/opt/libassuan/include/assuan.h ]]; then
+    assuan_prefix="/usr/local/opt/libassuan"
   elif [[ -f /opt/homebrew/include/assuan.h ]]; then
     assuan_prefix="/opt/homebrew"
+  elif [[ -f /opt/homebrew/opt/libassuan/include/assuan.h ]]; then
+    assuan_prefix="/opt/homebrew/opt/libassuan"
+  elif [[ -f /usr/local/include/assuan.h ]]; then
+    assuan_prefix="/usr/local"
   else
     printf 'error: assuan.h not found. Install libassuan or set PINENTRY_MAC_SWIFT_ASSUAN_PREFIX.\n' >&2
     exit 1
@@ -53,8 +59,14 @@ if [[ -z "$gpg_error_prefix" ]]; then
     gpg_error_prefix="$assuan_prefix"
   elif [[ -f /usr/local/MacGPG2/include/gpg-error.h ]]; then
     gpg_error_prefix="/usr/local/MacGPG2"
+  elif [[ -f /usr/local/opt/libgpg-error/include/gpg-error.h ]]; then
+    gpg_error_prefix="/usr/local/opt/libgpg-error"
   elif [[ -f /opt/homebrew/include/gpg-error.h ]]; then
     gpg_error_prefix="/opt/homebrew"
+  elif [[ -f /opt/homebrew/opt/libgpg-error/include/gpg-error.h ]]; then
+    gpg_error_prefix="/opt/homebrew/opt/libgpg-error"
+  elif [[ -f /usr/local/include/gpg-error.h ]]; then
+    gpg_error_prefix="/usr/local"
   else
     printf 'error: gpg-error.h not found. Install libgpg-error or set PINENTRY_MAC_SWIFT_GPG_ERROR_PREFIX.\n' >&2
     exit 1

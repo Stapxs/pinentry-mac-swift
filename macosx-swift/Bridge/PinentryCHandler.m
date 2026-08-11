@@ -1,6 +1,7 @@
 #import <Foundation/Foundation.h>
 #import <AppKit/AppKit.h>
 #import <LocalAuthentication/LocalAuthentication.h>
+#import <QuartzCore/QuartzCore.h>
 #import <dlfcn.h>
 #import <libproc.h>
 #import "pinentry.h"
@@ -42,7 +43,71 @@ static BOOL PinentryMacSwiftIsAtLeastMacOS(NSInteger majorVersion, NSInteger min
     return [[NSProcessInfo processInfo] isOperatingSystemAtLeastVersion:version];
 }
 
+static CGFloat PinentryMacSwiftDialogCornerRadius(void) {
+    return PinentryMacSwiftIsAtLeastMacOS(26, 0) ? 26.0 : 16.0;
+}
+
+static CGFloat PinentryMacSwiftDialogShadowOutset(void) {
+    return 18.0;
+}
+
+@interface PinentryMacSwiftShadowContainerView : NSView
+@end
+
+@implementation PinentryMacSwiftShadowContainerView
+
+- (instancetype)initWithFrame:(NSRect)frameRect {
+    self = [super initWithFrame:frameRect];
+    if (self) {
+        self.wantsLayer = YES;
+        self.layer.masksToBounds = NO;
+        self.layer.shadowColor = NSColor.blackColor.CGColor;
+        self.layer.shadowOpacity = 0.20;
+        self.layer.shadowRadius = 8.0;
+        self.layer.shadowOffset = NSMakeSize(0.0, -3.0);
+    }
+    return self;
+}
+
+- (void)layout {
+    [super layout];
+    [self updateShadowPath];
+}
+
+- (void)setFrameSize:(NSSize)newSize {
+    [super setFrameSize:newSize];
+    [self updateShadowPath];
+}
+
+- (void)updateShadowPath {
+    if (!self.layer) {
+        return;
+    }
+
+    CGRect shadowRect = NSRectToCGRect(NSInsetRect(self.bounds, PinentryMacSwiftDialogShadowOutset(), PinentryMacSwiftDialogShadowOutset()));
+    CGPathRef shadowPath = CGPathCreateWithRoundedRect(
+        shadowRect,
+        PinentryMacSwiftDialogCornerRadius(),
+        PinentryMacSwiftDialogCornerRadius(),
+        NULL
+    );
+    self.layer.shadowPath = shadowPath;
+    CGPathRelease(shadowPath);
+}
+
+@end
+
+static void PinentryMacSwiftClipViewToDialogCornerRadius(NSView *view) {
+    view.wantsLayer = YES;
+    view.layer.cornerRadius = PinentryMacSwiftDialogCornerRadius();
+    view.layer.masksToBounds = YES;
+    if ([view.layer respondsToSelector:@selector(setCornerCurve:)]) {
+        view.layer.cornerCurve = kCACornerCurveContinuous;
+    }
+}
+
 static void PinentryMacSwiftPinSubview(NSView *subview, NSView *container) {
+    subview.translatesAutoresizingMaskIntoConstraints = NO;
     [container addSubview:subview];
     [NSLayoutConstraint activateConstraints:@[
         [subview.leadingAnchor constraintEqualToAnchor:container.leadingAnchor],
@@ -50,6 +115,32 @@ static void PinentryMacSwiftPinSubview(NSView *subview, NSView *container) {
         [subview.topAnchor constraintEqualToAnchor:container.topAnchor],
         [subview.bottomAnchor constraintEqualToAnchor:container.bottomAnchor],
     ]];
+}
+
+static void PinentryMacSwiftPinSubviewWithInset(NSView *subview, NSView *container, CGFloat inset) {
+    subview.translatesAutoresizingMaskIntoConstraints = NO;
+    [container addSubview:subview];
+    [NSLayoutConstraint activateConstraints:@[
+        [subview.leadingAnchor constraintEqualToAnchor:container.leadingAnchor constant:inset],
+        [subview.trailingAnchor constraintEqualToAnchor:container.trailingAnchor constant:-inset],
+        [subview.topAnchor constraintEqualToAnchor:container.topAnchor constant:inset],
+        [subview.bottomAnchor constraintEqualToAnchor:container.bottomAnchor constant:-inset],
+    ]];
+}
+
+static NSView *PinentryMacSwiftWrapDialogSurface(NSView *surfaceView, NSRect frame, BOOL clipsSurfaceView) {
+    PinentryMacSwiftShadowContainerView *shadowContainer = [[PinentryMacSwiftShadowContainerView alloc] initWithFrame:frame];
+    NSView *dialogSurfaceView = surfaceView;
+
+    if (clipsSurfaceView) {
+        NSView *roundedContainer = [[NSView alloc] initWithFrame:NSZeroRect];
+        PinentryMacSwiftClipViewToDialogCornerRadius(roundedContainer);
+        PinentryMacSwiftPinSubview(surfaceView, roundedContainer);
+        dialogSurfaceView = roundedContainer;
+    }
+
+    PinentryMacSwiftPinSubviewWithInset(dialogSurfaceView, shadowContainer, PinentryMacSwiftDialogShadowOutset());
+    return shadowContainer;
 }
 
 NSView *PinentryMacSwiftCreateGlassContainer(NSView *hostingView, NSRect frame) {
@@ -65,7 +156,7 @@ NSView *PinentryMacSwiftCreateGlassContainer(NSView *hostingView, NSRect frame) 
                 }
 
                 if ([glassView respondsToSelector:@selector(setCornerRadius:)]) {
-                    [glassView setValue:@26.0 forKey:@"cornerRadius"];
+                    [glassView setValue:@(PinentryMacSwiftDialogCornerRadius()) forKey:@"cornerRadius"];
                 }
                 if ([glassView respondsToSelector:@selector(setStyle:)]) {
                     [glassView setValue:@0 forKey:@"style"];
@@ -80,7 +171,7 @@ NSView *PinentryMacSwiftCreateGlassContainer(NSView *hostingView, NSRect frame) 
                     [glassView setValue:@YES forKey:@"effectIsInteractive"];
                 }
 
-                return glassView;
+                return PinentryMacSwiftWrapDialogSurface(glassView, frame, YES);
             }
         }
     }
@@ -90,13 +181,13 @@ NSView *PinentryMacSwiftCreateGlassContainer(NSView *hostingView, NSRect frame) 
     effectView.blendingMode = NSVisualEffectBlendingModeBehindWindow;
     effectView.state = NSVisualEffectStateActive;
     effectView.wantsLayer = YES;
-    effectView.layer.cornerRadius = 26;
+    effectView.layer.cornerRadius = PinentryMacSwiftDialogCornerRadius();
     effectView.layer.masksToBounds = YES;
     effectView.layer.borderWidth = 1;
     effectView.layer.borderColor = [NSColor.whiteColor colorWithAlphaComponent:0.16].CGColor;
 
     PinentryMacSwiftPinSubview(hostingView, effectView);
-    return effectView;
+    return PinentryMacSwiftWrapDialogSurface(effectView, frame, NO);
 }
 
 static Class PinentryMacSwiftAuthenticationViewClass(void) {

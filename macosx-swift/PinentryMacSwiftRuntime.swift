@@ -5,6 +5,7 @@ import SwiftUI
 
 private let windowMinimumContentSize = NSSize(width: 300, height: 0)
 private let windowMaximumContentSize = NSSize(width: 420, height: 640)
+private let windowShadowOutset: CGFloat = 18
 
 private final class PinentryPanelWindow: NSWindow {
     override var canBecomeKey: Bool { true }
@@ -213,7 +214,7 @@ final class PinentryMacSwiftRuntime: NSObject {
         )
         window.isOpaque = false
         window.backgroundColor = .clear
-        window.hasShadow = true
+        window.hasShadow = false
         window.isReleasedWhenClosed = false
         window.level = .modalPanel
         window.collectionBehavior = [.moveToActiveSpace, .transient]
@@ -251,13 +252,21 @@ final class PinentryMacSwiftRuntime: NSObject {
     private static func applyPreferredWindowSize(_ preferredSize: NSSize, to window: NSWindow, animated: Bool) {
         let clampedSize = clampedWindowSize(for: preferredSize)
         let currentFrame = window.frame
+        let windowSize = windowFrameSize(forContentSize: clampedSize)
         let newFrame = NSRect(
             x: currentFrame.minX,
-            y: currentFrame.maxY - clampedSize.height,
-            width: clampedSize.width,
-            height: clampedSize.height
+            y: currentFrame.maxY - windowSize.height,
+            width: windowSize.width,
+            height: windowSize.height
         )
         window.setFrame(newFrame, display: true, animate: animated)
+    }
+
+    private static func windowFrameSize(forContentSize contentSize: NSSize) -> NSSize {
+        NSSize(
+            width: contentSize.width + windowShadowOutset * 2,
+            height: contentSize.height + windowShadowOutset * 2
+        )
     }
 
     private static func clampedWindowSize(for size: NSSize) -> NSSize {

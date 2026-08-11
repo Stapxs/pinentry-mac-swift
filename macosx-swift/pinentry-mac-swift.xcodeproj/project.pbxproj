@@ -399,7 +399,12 @@
 					"$(PROJECT_DIR)/../secmem",
 					"$(PROJECT_DIR)/../macosx",
 					"/usr/local/MacGPG2/include",
+					"/usr/local/include",
+					"/usr/local/opt/libassuan/include",
+					"/usr/local/opt/libgpg-error/include",
 					"/opt/homebrew/include",
+					"/opt/homebrew/opt/libassuan/include",
+					"/opt/homebrew/opt/libgpg-error/include",
 				);
 				INFOPLIST_FILE = Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -413,7 +418,12 @@
 					"$(PROJECT_DIR)/../pinentry/libpinentry.a",
 					"$(PROJECT_DIR)/../secmem/libsecmem.a",
 					"-L/usr/local/MacGPG2/lib",
+					"-L/usr/local/lib",
+					"-L/usr/local/opt/libassuan/lib",
+					"-L/usr/local/opt/libgpg-error/lib",
 					"-L/opt/homebrew/lib",
+					"-L/opt/homebrew/opt/libassuan/lib",
+					"-L/opt/homebrew/opt/libgpg-error/lib",
 					"-lassuan",
 					"-lgpg-error",
 					"-framework",
@@ -451,7 +461,12 @@
 					"$(PROJECT_DIR)/../secmem",
 					"$(PROJECT_DIR)/../macosx",
 					"/usr/local/MacGPG2/include",
+					"/usr/local/include",
+					"/usr/local/opt/libassuan/include",
+					"/usr/local/opt/libgpg-error/include",
 					"/opt/homebrew/include",
+					"/opt/homebrew/opt/libassuan/include",
+					"/opt/homebrew/opt/libgpg-error/include",
 				);
 				INFOPLIST_FILE = Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -465,7 +480,12 @@
 					"$(PROJECT_DIR)/../pinentry/libpinentry.a",
 					"$(PROJECT_DIR)/../secmem/libsecmem.a",
 					"-L/usr/local/MacGPG2/lib",
+					"-L/usr/local/lib",
+					"-L/usr/local/opt/libassuan/lib",
+					"-L/usr/local/opt/libgpg-error/lib",
 					"-L/opt/homebrew/lib",
+					"-L/opt/homebrew/opt/libassuan/lib",
+					"-L/opt/homebrew/opt/libgpg-error/lib",
 					"-lassuan",
 					"-lgpg-error",
 					"-framework",
